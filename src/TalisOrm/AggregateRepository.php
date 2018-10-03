@@ -8,6 +8,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use InvalidArgumentException;
 use function is_a;
+use LogicException;
 use PDO;
 
 final class AggregateRepository
@@ -70,7 +71,16 @@ final class AggregateRepository
             $states[] = $childEntityStates;
         }
 
-        return $aggregateClass::fromState(...$states);
+        $aggregate = $aggregateClass::fromState(...$states);
+
+        if (!$aggregate instanceof $aggregateClass) {
+            throw new LogicException(sprintf(
+                'Method "%s::fromState()" was expected to return an instance of "%1$s"',
+                $aggregateClass
+            ));
+        }
+
+        return $aggregate;
     }
 
     public function delete(Aggregate $aggregate): void
