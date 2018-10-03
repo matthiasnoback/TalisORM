@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace TalisOrm;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ResultStatement;
 use InvalidArgumentException;
 use function is_a;
+use PDO;
 
 final class AggregateRepository
 {
@@ -47,34 +49,23 @@ final class AggregateRepository
             ));
         }
 
-        $queryBuilder = $this->createQueryBuilderFor(
-            $aggregateClass::tableName(),
-            $aggregateClass::identifierForQuery($aggregateId)
-        )
-            ->select('*');
-
         $states = [];
 
-        $aggregateState = $queryBuilder->execute()->fetch(\PDO::FETCH_ASSOC);
-        if ($aggregateState === false) {
+        $aggregateStates = $this->fetchAll($aggregateClass::tableName(), $aggregateClass::identifierForQuery($aggregateId));
+        if (\count($aggregateStates) === 0) {
             throw new AggregateNotFoundException(sprintf(
                 'Could not find aggregate of type "%s" with id "%s"',
                 $aggregateClass,
                 $aggregateId
             ));
         }
-
-        $states[] = $aggregateState;
+        $states[] = reset($aggregateStates);
 
         foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
-            $childEntityStates = $this
-                ->createQueryBuilderFor(
-                    $childEntityType::tableName(),
-                    $childEntityType::identifierForQuery($aggregateId)
-                )
-                ->select('*')
-                ->execute()
-                ->fetchAll(\PDO::FETCH_ASSOC);
+            $childEntityStates = $this->fetchAll(
+                $childEntityType::tableName(),
+                $childEntityType::identifierForQuery($aggregateId)
+            );
 
             $states[] = $childEntityStates;
         }
@@ -106,30 +97,38 @@ final class AggregateRepository
 
     private function entityExists(Entity $entity): bool
     {
-        $queryBuilder = $this->connection->createQueryBuilder()
-            ->select('COUNT(*)')
-            ->from($entity->tableName());
+        $count = $this->select('COUNT(*)', $entity->tableName(), $entity->identifier())->fetchColumn();
 
-        $identifier = $entity->identifier();
-        foreach ($identifier as $column => $value) {
-            $queryBuilder->andWhere($column . ' = ?');
-        }
-        $queryBuilder->setParameters(array_values($identifier));
-
-        return (int)$queryBuilder->execute()->fetchColumn() > 0;
+        return (int)$count > 0;
     }
 
-    private function createQueryBuilderFor(string $tableName, array $identifier): QueryBuilder
+    private function fetchAll(string $tableName, array $identifier): array
     {
-        $queryBuilder = $this->connection->createQueryBuilder()
-            ->from($tableName);
+        return $this->select('*', $tableName, $identifier)->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-        foreach ($identifier as $column => $value) {
-            $queryBuilder->andWhere($column . ' = ?');
+    /**
+     * This method might have been on Connection itself...
+     *
+     * @param string $selectExpression
+     * @param string $tableExpression
+     * @param array $where
+     * @return ResultStatement
+     * @throws DBALException
+     */
+    private function select(string $selectExpression, string $tableExpression, array $where): ResultStatement
+    {
+        $conditions = [];
+        $values = [];
+        foreach ($where as $columnName => $value) {
+            $conditions[] = $columnName . ' = ?';
+            $values[] = $value;
         }
 
-        $queryBuilder->setParameters(array_values($identifier));
+        $sql = 'SELECT ' . $selectExpression
+            . ' FROM ' . $tableExpression
+            . ' WHERE ' . implode(' AND ', $conditions);
 
-        return $queryBuilder;
+        return $this->connection->executeQuery($sql, $values);
     }
 }
