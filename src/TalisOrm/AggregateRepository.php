@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace TalisOrm;
 
-use function class_implements;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use InvalidArgumentException;

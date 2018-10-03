@@ -94,11 +94,15 @@ final class Order implements Aggregate
         $order = new self();
 
         $order->orderId = new OrderId($orderState['order_id'], (int)$orderState['company_id']);
-        $order->orderDate = DateTimeImmutable::createFromFormat('Y-m-d', $orderState['order_date']);
+        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $orderState['order_date']);
+        Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);
+        $order->orderDate = $dateTimeImmutable;
 
         $order->lines = [];
         foreach ($lineStates as $lineState) {
-            $order->lines[] = Line::fromState($lineState);
+            $entity = Line::fromState($lineState);
+            Assert::isInstanceOf($entity, Line::class);
+            $order->lines[] = $entity;
         }
 
         return $order;

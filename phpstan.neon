@@ -1,0 +1,2 @@
+includes:
+  - vendor/phpstan/phpstan-webmozart-assert/extension.neon

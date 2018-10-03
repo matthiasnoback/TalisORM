@@ -14,6 +14,7 @@ use TalisOrm\AggregateRepositoryTest\Order;
 use TalisOrm\AggregateRepositoryTest\OrderId;
 use TalisOrm\AggregateRepositoryTest\ProductId;
 use TalisOrm\AggregateRepositoryTest\Quantity;
+use Webmozart\Assert\Assert;
 
 final class AggregateRepositoryTest extends TestCase
 {
@@ -67,7 +68,7 @@ final class AggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+            $this->createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -89,7 +90,7 @@ final class AggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+            $this->createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -115,7 +116,7 @@ final class AggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+            $this->createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -144,7 +145,7 @@ final class AggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+            $this->createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -157,5 +158,13 @@ final class AggregateRepositoryTest extends TestCase
 
         $this->expectException(AggregateNotFoundException::class);
         $this->repository->getById(Order::class, $aggregate->orderId());
+    }
+
+    private function createDateTimeImmutable($date): DateTimeImmutable
+    {
+        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);
+
+        return $dateTimeImmutable;
     }
 }

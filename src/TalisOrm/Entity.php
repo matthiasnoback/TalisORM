@@ -48,8 +48,8 @@ interface Entity
      *         'company_id' => $orderId->companyId()
      *     ];
      *
-     * @param $id
+     * @param AggregateId $aggregateId
      * @return array
      */
-    public static function identifierForQuery(AggregateId $id): array;
+    public static function identifierForQuery(AggregateId $aggregateId): array;
 }

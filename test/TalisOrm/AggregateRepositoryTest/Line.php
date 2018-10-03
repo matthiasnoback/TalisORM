@@ -6,7 +6,6 @@ namespace TalisOrm\AggregateRepositoryTest;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\Entity;
-use Webmozart\Assert\Assert;
 
 final class Line implements ChildEntity
 {
@@ -109,7 +108,9 @@ final class Line implements ChildEntity
 
     public static function identifierForQuery(AggregateId $aggregateId): array
     {
-        Assert::isInstanceOf($aggregateId, OrderId::class);
+        if (!$aggregateId instanceof OrderId) {
+            throw new \InvalidArgumentException('Expected an instance of OrderId');
+        }
 
         return [
             'order_id' => $aggregateId->orderId(),
