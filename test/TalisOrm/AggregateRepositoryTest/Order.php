@@ -5,6 +5,7 @@ namespace TalisOrm\AggregateRepositoryTest;
 
 use DateTimeImmutable;
 use TalisOrm\Aggregate;
+use TalisOrm\ChildEntity;
 use Webmozart\Assert\Assert;
 
 final class Order implements Aggregate
@@ -24,6 +25,11 @@ final class Order implements Aggregate
      */
     private $lines = [];
 
+    /**
+     * @var array
+     */
+    private $deletedChildEntities = [];
+
     private function __construct()
     {
     }
@@ -41,6 +47,16 @@ final class Order implements Aggregate
     public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
     {
         $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity);
+    }
+
+    public function deleteLine(LineNumber $lineId): void
+    {
+        foreach ($this->lines as $index => $line) {
+            if ($line->lineNumber()->asInt() === $lineId->asInt()) {
+                unset($this->lines[$index]);
+                $this->deleteChildEntity($line);
+            }
+        }
     }
 
     public function orderId(): OrderId
@@ -108,5 +124,19 @@ final class Order implements Aggregate
             'order_id' => $id->orderId(),
             'company_id' => $id->companyId()
         ];
+    }
+
+    public function deletedChildEntities(): array
+    {
+        $deletedChildEntities = $this->deletedChildEntities;
+
+        $this->deletedChildEntities = [];
+
+        return $deletedChildEntities;
+    }
+
+    private function deleteChildEntity(ChildEntity $childEntity)
+    {
+        $this->deletedChildEntities[] = $childEntity;
     }
 }

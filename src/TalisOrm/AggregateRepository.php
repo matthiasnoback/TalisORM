@@ -26,6 +26,10 @@ final class AggregateRepository
         $this->connection->transactional(function () use ($aggregate) {
             $this->insertOrUpdate($aggregate);
 
+            foreach ($aggregate->deletedChildEntities() as $childEntity) {
+                $this->connection->delete($childEntity->tableName(), $childEntity->identifier());
+            }
+
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
                 foreach ($childEntities as $childEntity) {
                     $this->insertOrUpdate($childEntity);

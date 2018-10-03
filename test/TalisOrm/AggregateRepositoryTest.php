@@ -81,4 +81,59 @@ final class AggregateRepositoryTest extends TestCase
 
         self::assertEquals($aggregate, $fromDatabase);
     }
+
+    /**
+     * @test
+     */
+    public function it_saves_and_retrieves_multiple_child_entities_in_the_database()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $aggregate->addLine(
+            new LineNumber(2),
+            new ProductId('4a1828d4-f87d-4d6e-9fc7-ce2ccbc23247', 5),
+            new Quantity(5)
+        );
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
+
+    /**
+     * @test
+     */
+    public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $aggregate->addLine(
+            new LineNumber(2),
+            new ProductId('4a1828d4-f87d-4d6e-9fc7-ce2ccbc23247', 5),
+            new Quantity(5)
+        );
+        $this->repository->save($aggregate);
+
+        $aggregate->deleteLine(new LineNumber(2));
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
 }

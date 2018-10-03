@@ -49,4 +49,11 @@ interface Aggregate extends Entity
      * @return static
      */
     public static function fromState(array ...$states): Aggregate;
+
+    /**
+     * Return any deleted child entities.
+     *
+     * @return ChildEntity[]
+     */
+    public function deletedChildEntities(): array;
 }

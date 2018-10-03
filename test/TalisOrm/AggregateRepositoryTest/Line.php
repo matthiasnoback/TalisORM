@@ -101,7 +101,8 @@ final class Line implements ChildEntity
     {
         return [
             'order_id' => $this->orderId->orderId(),
-            'company_id' => $this->orderId->companyId()
+            'company_id' => $this->orderId->companyId(),
+            'line_number' => $this->lineNumber->asInt()
         ];
     }
 
