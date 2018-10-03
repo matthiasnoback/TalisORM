@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/matthiasnoback/TalisORM.svg?branch=master)](https://travis-ci.org/matthiasnoback/TalisORM)
+
 # About TalisORM
 
 A good design starts with some limitations. You can start simple and keep building until you have a large ORM like Doctrine. Or you can choose not to support a mapping configuration, table inheritance, combined write/read models, navigable object graphs, lazy-loading, etc. That's what I'm looking for with TalisOrm. The rules are:

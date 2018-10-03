@@ -1,6 +1,7 @@
 {
     "license": "MIT",
     "require": {
+        "php": ">=7.1",
         "doctrine/dbal": "^2.8"
     },
     "require-dev": {
