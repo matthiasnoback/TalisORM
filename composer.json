@@ -1,5 +1,12 @@
 {
+    "name": "matthiasnoback/talis-orm",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Matthias Noback",
+            "email": "matthiasnoback@gmail.com"
+        }
+    ],
     "require": {
         "php": ">=7.1",
         "doctrine/dbal": "^2.8"
