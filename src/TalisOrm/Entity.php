@@ -1,0 +1,55 @@
+<?php
+declare(strict_types=1);
+
+namespace TalisOrm;
+
+interface Entity
+{
+    /**
+     * Return an array representing the state of this entity. The keys of this array are the exact names of the
+     * database columns. Sample implementation:
+     *
+     *     return [
+     *         'order_id' => 21,
+     *         'order_date' => '2018-10-03'
+     *     ];
+     *
+     * @return array
+     */
+    public function state(): array;
+
+    /**
+     * Return the name of the table for this entity. Sample implementation:
+     *
+     *     return 'users';
+     *
+     * @return string
+     */
+    public static function tableName(): string;
+
+    /**
+     * Return an array of columns and values which uniquely identify this entity. Sample implementation:
+     *
+     *     return [
+     *         'order_id' => 21,
+     *         'company_id' => 5
+     *     ];
+     *
+     * @return array
+     */
+    public function identifier(): array;
+
+    /**
+     * Return an array of columns and values that should be used to find the aggregate with the given ID. Sample
+     * implementation:
+     *
+     *     return [
+     *         'order_id' => $orderId->orderId(),
+     *         'company_id' => $orderId->companyId()
+     *     ];
+     *
+     * @param $id
+     * @return array
+     */
+    public static function identifierForQuery($id): array;
+}
