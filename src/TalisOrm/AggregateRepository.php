@@ -38,7 +38,7 @@ final class AggregateRepository
         });
     }
 
-    public function getById(string $aggregateClass, $id)
+    public function getById(string $aggregateClass, AggregateId $aggregateId)
     {
         if (!is_a($aggregateClass, Aggregate::class, true)) {
             throw new InvalidArgumentException(sprintf(
@@ -50,7 +50,7 @@ final class AggregateRepository
 
         $queryBuilder = $this->createQueryBuilderFor(
             $aggregateClass::tableName(),
-            $aggregateClass::identifierForQuery($id)
+            $aggregateClass::identifierForQuery($aggregateId)
         )
             ->select('*');
 
@@ -61,7 +61,7 @@ final class AggregateRepository
             throw new AggregateNotFoundException(sprintf(
                 'Could not find aggregate of type "%s" with id "%s"',
                 $aggregateClass,
-                $id
+                $aggregateId
             ));
         }
 
@@ -71,7 +71,7 @@ final class AggregateRepository
             $childEntityStates = $this
                 ->createQueryBuilderFor(
                     $childEntityType::tableName(),
-                    $childEntityType::identifierForQuery($id)
+                    $childEntityType::identifierForQuery($aggregateId)
                 )
                 ->select('*')
                 ->execute()
@@ -81,6 +81,19 @@ final class AggregateRepository
         }
 
         return $aggregateClass::fromState(...$states);
+    }
+
+    public function delete(Aggregate $aggregate): void
+    {
+        $this->connection->transactional(function () use ($aggregate) {
+            $this->connection->delete($aggregate->tableName(), $aggregate->identifier());
+
+            foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
+                foreach ($childEntities as $childEntity) {
+                    $this->connection->delete($childEntity->tableName(), $childEntity->identifier());
+                }
+            }
+        });
     }
 
     private function insertOrUpdate(Entity $entity): void

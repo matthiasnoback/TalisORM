@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
-final class OrderId
+use TalisOrm\AggregateId;
+
+final class OrderId implements AggregateId
 {
     /**
      * @var string
@@ -29,5 +31,10 @@ final class OrderId
     public function companyId(): int
     {
         return $this->companyId;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('%s-%d', $this->orderId, $this->companyId);
     }
 }

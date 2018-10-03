@@ -136,4 +136,26 @@ final class AggregateRepositoryTest extends TestCase
 
         self::assertEquals($aggregate, $fromDatabase);
     }
+
+    /**
+     * @test
+     */
+    public function it_deletes_an_aggregate_with_its_child_entities()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeImmutable::createFromFormat('Y-m-d', '2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $this->repository->save($aggregate);
+
+        $this->repository->delete($aggregate);
+
+        $this->expectException(AggregateNotFoundException::class);
+        $this->repository->getById(Order::class, $aggregate->orderId());
+    }
 }

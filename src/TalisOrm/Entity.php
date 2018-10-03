@@ -51,5 +51,5 @@ interface Entity
      * @param $id
      * @return array
      */
-    public static function identifierForQuery($id): array;
+    public static function identifierForQuery(AggregateId $id): array;
 }

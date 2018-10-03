@@ -5,6 +5,7 @@ namespace TalisOrm\AggregateRepositoryTest;
 
 use DateTimeImmutable;
 use TalisOrm\Aggregate;
+use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use Webmozart\Assert\Assert;
 
@@ -116,13 +117,13 @@ final class Order implements Aggregate
         ];
     }
 
-    public static function identifierForQuery($id): array
+    public static function identifierForQuery(AggregateId $aggregateId): array
     {
-        Assert::isInstanceOf($id, OrderId::class);
+        Assert::isInstanceOf($aggregateId, OrderId::class);
 
         return [
-            'order_id' => $id->orderId(),
-            'company_id' => $id->companyId()
+            'order_id' => $aggregateId->orderId(),
+            'company_id' => $aggregateId->companyId()
         ];
     }
 
