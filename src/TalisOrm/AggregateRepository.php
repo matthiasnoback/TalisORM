@@ -88,16 +88,16 @@ final class AggregateRepository
 
     private function insertOrUpdate(Entity $entity): void
     {
-        if ($this->entityExists($entity)) {
+        if ($this->exists($entity->tableName(), $entity->identifier())) {
             $this->connection->update($entity->tableName(), $entity->state(), $entity->identifier());
         } else {
             $this->connection->insert($entity->tableName(), $entity->state());
         }
     }
 
-    private function entityExists(Entity $entity): bool
+    private function exists(string $tableName, array $identifier): bool
     {
-        $count = $this->select('COUNT(*)', $entity->tableName(), $entity->identifier())->fetchColumn();
+        $count = $this->select('COUNT(*)', $tableName, $identifier)->fetchColumn();
 
         return (int)$count > 0;
     }
