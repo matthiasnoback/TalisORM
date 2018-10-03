@@ -5,6 +5,10 @@ namespace TalisOrm\AggregateRepositoryTest;
 
 use TalisOrm\AggregateRepository;
 
+/**
+ * This is your implementation of the OrderRepository interface from your _Domain_ layer. This implementation itself
+ * belongs to the _Infrastructure_ layer.
+ */
 final class OrderTalisOrmRepository implements OrderRepository
 {
     /**
