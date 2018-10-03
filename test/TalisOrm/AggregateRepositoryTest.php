@@ -64,18 +64,12 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_can_save_an_aggregate_with_its_child_entities()
+    public function it_saves_an_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            $this->createDateTimeImmutable('2018-10-03')
+            self::createDateTimeImmutable('2018-10-03')
         );
-        $aggregate->addLine(
-            new LineNumber(1),
-            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
-            new Quantity(10)
-        );
-
         $this->repository->save($aggregate);
 
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
@@ -86,11 +80,51 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_saves_and_retrieves_multiple_child_entities_in_the_database()
+    public function it_updates_an_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            $this->createDateTimeImmutable('2018-10-03')
+            self::createDateTimeImmutable('2018-10-03')
+        );
+        $this->repository->save($aggregate);
+
+        $aggregate->update(self::createDateTimeImmutable('2018-11-05'));
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
+
+    /**
+     * @test
+     */
+    public function it_saves_an_aggregate_with_its_child_entities()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            self::createDateTimeImmutable('2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_multiple_child_entities_in_the_database()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            self::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -112,11 +146,44 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function it_updates_multiple_child_entities_in_the_database()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            self::createDateTimeImmutable('2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $aggregate->addLine(
+            new LineNumber(2),
+            new ProductId('4a1828d4-f87d-4d6e-9fc7-ce2ccbc23247', 5),
+            new Quantity(5)
+        );
+        $this->repository->save($aggregate);
+
+        $aggregate->updateLine(
+            new LineNumber(2),
+            new ProductId('ec739f60-0d09-47f5-ae42-e2157ba709e2', 5),
+            new Quantity(7)
+        );
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
+
+    /**
+     * @test
+     */
     public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            $this->createDateTimeImmutable('2018-10-03')
+            self::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -145,7 +212,7 @@ final class AggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            $this->createDateTimeImmutable('2018-10-03')
+            self::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -160,7 +227,7 @@ final class AggregateRepositoryTest extends TestCase
         $this->repository->getById(Order::class, $aggregate->orderId());
     }
 
-    private function createDateTimeImmutable($date): DateTimeImmutable
+    private static function createDateTimeImmutable($date): DateTimeImmutable
     {
         $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $date);
         Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);

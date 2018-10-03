@@ -49,6 +49,12 @@ final class Line implements ChildEntity
         return $line;
     }
 
+    public function update(ProductId $productId, Quantity $quantity): void
+    {
+        $this->productId = $productId;
+        $this->quantity = $quantity;
+    }
+
     public function lineNumber(): LineNumber
     {
         return $this->lineNumber;

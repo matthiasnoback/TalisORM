@@ -45,9 +45,23 @@ final class Order implements Aggregate
         return $order;
     }
 
+    public function update(DateTimeImmutable $orderDate): void
+    {
+        $this->orderDate = $orderDate;
+    }
+
     public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
     {
         $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity);
+    }
+
+    public function updateLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
+    {
+        foreach ($this->lines as $index => $line) {
+            if ($line->lineNumber()->asInt() === $lineId->asInt()) {
+                $line->update($productId, $quantity);
+            }
+        }
     }
 
     public function deleteLine(LineNumber $lineId): void
@@ -95,7 +109,10 @@ final class Order implements Aggregate
 
         $order->orderId = new OrderId($orderState['order_id'], (int)$orderState['company_id']);
         $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $orderState['order_date']);
-        Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);
+
+        if (!$dateTimeImmutable instanceof DateTimeImmutable) {
+            throw new \RuntimeException('Invalid date string from database');
+        }
         $order->orderDate = $dateTimeImmutable;
 
         $order->lines = [];

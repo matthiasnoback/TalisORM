@@ -20,6 +20,8 @@ final class OrderTalisOrmRepository implements OrderRepository
     public function save(Order $order): void
     {
         $this->aggregateRepository->save($order);
+
+        // you may dispatch events at this point
     }
 
     public function getById(OrderId $orderId): Order
