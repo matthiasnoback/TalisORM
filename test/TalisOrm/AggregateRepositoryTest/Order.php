@@ -104,13 +104,12 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array ...$states): Aggregate
+    public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate
     {
-        list($orderState, $lineStates) = $states;
         $order = new self();
 
-        $order->orderId = new OrderId($orderState['order_id'], (int)$orderState['company_id']);
-        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $orderState['order_date']);
+        $order->orderId = new OrderId($aggregateState['order_id'], (int)$aggregateState['company_id']);
+        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $aggregateState['order_date']);
 
         if (!$dateTimeImmutable instanceof DateTimeImmutable) {
             throw new \RuntimeException('Invalid date string from database');
@@ -118,7 +117,7 @@ final class Order implements Aggregate, SpecifiesSchema
         $order->orderDate = $dateTimeImmutable;
 
         $order->lines = [];
-        foreach ($lineStates as $lineState) {
+        foreach ($childEntityStatesByType[Line::class] as $lineState) {
             $entity = Line::fromState($lineState);
             Assert::isInstanceOf($entity, Line::class);
             $order->lines[] = $entity;

@@ -50,8 +50,6 @@ final class AggregateRepository
             ));
         }
 
-        $states = [];
-
         $aggregateStates = $this->fetchAll($aggregateClass::tableName(), $aggregateClass::identifierForQuery($aggregateId));
         if (\count($aggregateStates) === 0) {
             throw new AggregateNotFoundException(sprintf(
@@ -60,18 +58,20 @@ final class AggregateRepository
                 $aggregateId
             ));
         }
-        $states[] = reset($aggregateStates);
+        $aggregateState = reset($aggregateStates);
+
+        $childEntityStatesByType = [];
 
         foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
-            $childEntityStates = $this->fetchAll(
+            $childEntityStatesByType = $this->fetchAll(
                 $childEntityType::tableName(),
                 $childEntityType::identifierForQuery($aggregateId)
             );
 
-            $states[] = $childEntityStates;
+            $childEntityStatesByType[$childEntityType] = $childEntityStatesByType;
         }
 
-        $aggregate = $aggregateClass::fromState(...$states);
+        $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
 
         if (!$aggregate instanceof $aggregateClass) {
             throw new LogicException(sprintf(
