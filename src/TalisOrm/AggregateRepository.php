@@ -23,7 +23,7 @@ final class AggregateRepository
         $this->connection = $connection;
     }
 
-    public function save(Aggregate $aggregate)
+    public function save(Aggregate $aggregate): void
     {
         $this->connection->transactional(function () use ($aggregate) {
             $this->insertOrUpdate($aggregate);

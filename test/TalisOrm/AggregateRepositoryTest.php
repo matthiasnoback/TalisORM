@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace TalisOrm;
 
 use DateTimeImmutable;
-use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
@@ -14,6 +13,7 @@ use TalisOrm\AggregateRepositoryTest\Order;
 use TalisOrm\AggregateRepositoryTest\OrderId;
 use TalisOrm\AggregateRepositoryTest\ProductId;
 use TalisOrm\AggregateRepositoryTest\Quantity;
+use TalisOrm\Schema\AggregateSchemaProvider;
 use Webmozart\Assert\Assert;
 
 final class AggregateRepositoryTest extends TestCase
@@ -30,28 +30,15 @@ final class AggregateRepositoryTest extends TestCase
 
     protected function setUp()
     {
-        $config = new Configuration();
         $this->connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite'
-        ], $config);
+        ]);
 
-        $schema = $this->connection->getSchemaManager()->createSchema();
-        $orderTable = $schema->createTable('orders');
-        $orderTable->addColumn('order_id', 'string');
-        $orderTable->addColumn('company_id', 'integer');
-        $orderTable->addColumn('order_date', 'date');
-        $orderTable->addUniqueIndex(['order_id', 'company_id']);
-
-        $linesTable = $schema->createTable('lines');
-        $linesTable->addColumn('order_id', 'string');
-        $linesTable->addColumn('company_id', 'integer');
-        $linesTable->addColumn('line_number', 'integer');
-        $linesTable->addColumn('product_id', 'string');
-        $linesTable->addColumn('quantity', 'integer');
-        $linesTable->addUniqueIndex(['order_id', 'company_id', 'line_number']);
-
+        $schemaProvider = new AggregateSchemaProvider($this->connection, [
+            Order::class
+        ]);
         $synchronizer = new SingleDatabaseSynchronizer($this->connection);
-        $synchronizer->createSchema($schema);
+        $synchronizer->createSchema($schemaProvider->createSchema());
 
         $this->repository = new AggregateRepository($this->connection);
     }
@@ -64,7 +51,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_saves_an_aggregate()
+    public function it_saves_an_aggregate(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -80,7 +67,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_an_aggregate()
+    public function it_updates_an_aggregate(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -99,7 +86,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_saves_an_aggregate_with_its_child_entities()
+    public function it_saves_an_aggregate_with_its_child_entities(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -120,7 +107,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_multiple_child_entities_in_the_database()
+    public function it_creates_multiple_child_entities_in_the_database(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -146,7 +133,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_multiple_child_entities_in_the_database()
+    public function it_updates_multiple_child_entities_in_the_database(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -179,7 +166,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate()
+    public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -208,7 +195,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_deletes_an_aggregate_with_its_child_entities()
+    public function it_deletes_an_aggregate_with_its_child_entities(): void
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),

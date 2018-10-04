@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace TalisOrm\AggregateRepositoryTest;
 
 use DateTimeImmutable;
+use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
+use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
 
-final class Order implements Aggregate
+final class Order implements Aggregate, SpecifiesSchema
 {
     /**
      * @var OrderId
@@ -141,6 +143,7 @@ final class Order implements Aggregate
     public static function identifierForQuery(AggregateId $aggregateId): array
     {
         Assert::isInstanceOf($aggregateId, OrderId::class);
+        /** @var OrderId $aggregateId */
 
         return [
             'order_id' => $aggregateId->orderId(),
@@ -157,8 +160,19 @@ final class Order implements Aggregate
         return $deletedChildEntities;
     }
 
-    private function deleteChildEntity(ChildEntity $childEntity)
+    private function deleteChildEntity(ChildEntity $childEntity): void
     {
         $this->deletedChildEntities[] = $childEntity;
+    }
+
+    public static function specifySchema(Schema $schema): void
+    {
+        $table = $schema->createTable('orders');
+        $table->addColumn('order_id', 'string');
+        $table->addColumn('company_id', 'integer');
+        $table->addColumn('order_date', 'date');
+        $table->addUniqueIndex(['order_id', 'company_id']);
+
+        Line::specifySchema($schema);
     }
 }

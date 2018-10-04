@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
+use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\Entity;
+use TalisOrm\Schema\SpecifiesSchema;
 
-final class Line implements ChildEntity
+final class Line implements ChildEntity, SpecifiesSchema
 {
     /**
      * @var OrderId
@@ -122,5 +124,16 @@ final class Line implements ChildEntity
             'order_id' => $aggregateId->orderId(),
             'company_id' => $aggregateId->companyId()
         ];
+    }
+
+    public static function specifySchema(Schema $schema): void
+    {
+        $table = $schema->createTable('lines');
+        $table->addColumn('order_id', 'string');
+        $table->addColumn('company_id', 'integer');
+        $table->addColumn('line_number', 'integer');
+        $table->addColumn('product_id', 'string');
+        $table->addColumn('quantity', 'integer');
+        $table->addUniqueIndex(['order_id', 'company_id', 'line_number']);
     }
 }
