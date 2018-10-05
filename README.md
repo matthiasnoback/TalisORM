@@ -7,6 +7,7 @@ A good design starts with some limitations. You can start simple and keep buildi
 - You model a persistable domain object as an _Aggregate_: one (root) _Entity_, and optionally some _Child entities_.
 - The child entities themselves have no children.
 - You use the ORM for your _write model_ only. That is, you don't need to fetch hundreds of these aggregates to show them to the user.
+- Your aggregate internally records domain events, which will automatically be released and dispatched after saving changes to the aggregate.
 
 Furthermore:
 
@@ -15,6 +16,12 @@ Furthermore:
 I explain more about the motivation for doing this in ["ORMless; a Memento-like pattern for object persistence"](https://matthiasnoback.nl/2018/03/ormless-a-memento-like-pattern-for-object-persistence).
 
 You can find some examples of how to use this library in [test/TalisOrm/AggregateRepositoryTest/](test/TalisOrm/AggregateRepositoryTest/).
+
+## Recording and dispatching domain events
+
+A domain event is a simple object indicating that something has happened inside an aggregate (usually this just means that something has changed). You can use the [`EventRecordingCapabilities`](src/TalisOrm/DomainEvents/EventRecordingCapabilities.php) trait to save yourself from rewriting a couple of simple lines over and over again.
+
+Immediately after saving an aggregate, the [`AggregateRepository`](src/TalisOrm/AggregateRepository.php) will call the aggregate's `releaseEvents()` method, which returns previously recorded domain events. It dispatches these events to an object that implements [`EventDispatcher`](src/TalisOrm/DomainEvents/EventDispatcher.php). As a user of this library you have to provide your own implementation of this interface, which is very simple. Maybe you just want to forward the call to your favorite event dispatcher, or the one that ships with your framework.
 
 ## Managing the database schema
 

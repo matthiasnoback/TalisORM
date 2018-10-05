@@ -10,6 +10,8 @@ use InvalidArgumentException;
 use function is_a;
 use LogicException;
 use PDO;
+use TalisOrm\DomainEvents\EventDispatcher;
+use TalisOrm\DomainEvents\RecordsDomainEvents;
 
 final class AggregateRepository
 {
@@ -18,9 +20,15 @@ final class AggregateRepository
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var EventDispatcher
+     */
+    private $eventDispatcher;
+
+    public function __construct(Connection $connection, EventDispatcher $eventDispatcher)
     {
         $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function save(Aggregate $aggregate): void
@@ -38,6 +46,8 @@ final class AggregateRepository
                 }
             }
         });
+
+        $this->eventDispatcher->dispatch(...$aggregate->releaseEvents());
     }
 
     public function getById(string $aggregateClass, AggregateId $aggregateId)

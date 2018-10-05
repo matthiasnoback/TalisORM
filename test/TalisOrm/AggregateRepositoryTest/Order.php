@@ -8,11 +8,15 @@ use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
+use TalisOrm\DomainEvents\EventRecordingCapabilities;
+use TalisOrm\DomainEvents\RecordsDomainEvents;
 use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
 
 final class Order implements Aggregate, SpecifiesSchema
 {
+    use EventRecordingCapabilities;
+
     /**
      * @var OrderId
      */
@@ -44,17 +48,23 @@ final class Order implements Aggregate, SpecifiesSchema
         $order->orderId = $orderId;
         $order->orderDate = $orderDate;
 
+        $order->recordThat(new OrderCreated());
+
         return $order;
     }
 
     public function update(DateTimeImmutable $orderDate): void
     {
         $this->orderDate = $orderDate;
+
+        $this->recordThat(new OrderUpdated());
     }
 
     public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
     {
         $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity);
+
+        $this->recordThat(new LineAdded());
     }
 
     public function updateLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
@@ -64,6 +74,8 @@ final class Order implements Aggregate, SpecifiesSchema
                 $line->update($productId, $quantity);
             }
         }
+
+        $this->recordThat(new LineUpdated());
     }
 
     public function deleteLine(LineNumber $lineId): void
@@ -74,6 +86,8 @@ final class Order implements Aggregate, SpecifiesSchema
                 $this->deleteChildEntity($line);
             }
         }
+
+        $this->recordThat(new LineDeleted());
     }
 
     public function orderId(): OrderId
