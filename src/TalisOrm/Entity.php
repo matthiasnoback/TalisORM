@@ -13,6 +13,9 @@ interface Entity
      *         'order_date' => '2018-10-03'
      *     ];
      *
+     * If your aggregate uses optimistic concurrency, make sure you increment the `aggregate_version` column every
+     * time this method gets called.
+     *
      * @return array
      */
     public function state();

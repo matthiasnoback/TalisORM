@@ -7,6 +7,12 @@ use TalisOrm\DomainEvents\EventRecordingCapabilities;
 interface Aggregate extends Entity
 {
     /**
+     * If your aggregate state has this column, it will be used for preventing concurrency issues using
+     * optimistic concurrency locking.
+     */
+    const VERSION_COLUMN = 'aggregate_version';
+
+    /**
      * Return all the child entities of this aggregate, grouped by their type. Sample implementation:
      *
      *     return [

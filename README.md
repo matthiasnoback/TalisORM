@@ -65,6 +65,97 @@ final class AggregateMigrationsSchemaProvider implements SchemaProviderInterface
 }
 ```
 
+## Protecting against concurrent updates
+
+Traditionally, we PHP developers aren't used to protect our aggregates against concurrent updates. Concurrent updates after all are a matter of chance. Maybe there aren't that many users who are working on the same aggregate in your project. But if you're worried that it might happen, there's an easy solution built-in to TalisORM: optimistic concurrency locking.
+
+You need to take the following steps to make it work:
+
+Make sure the table definition for your aggregate has an `Aggregate::VERSION_COLUMN` column, and that your `fromState()` and `state()` methods are aware of it. For example:
+
+```php
+final class Order implement Aggregate, SpecifiesSchema
+{
+    /**
+     * @var int
+     */
+    private $aggregateVersion;
+    
+    public function state(): array
+    {
+        // N.B. It's important to increment te version manually every time state() gets called!
+        $this->aggregateVersion++;
+
+        return [
+            // ...
+            Aggregate::VERSION_COLUMN => $this->aggregateVersion
+        ];
+    }
+    
+    public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate
+    {
+        $order = new self();
+
+        // ...
+
+        $order->aggregateVersion = $aggregateState[Aggregate::VERSION_COLUMN];
+
+        return $order;
+    }
+    
+    /**
+     * Only if your aggregate implements SpecifiesSchema:
+     */
+    public static function specifySchema(Schema $schema): void
+    {
+        $table = $schema->createTable('orders');
+        
+        // ...
+        
+        $table->addColumn(Aggregate::VERSION_COLUMN, 'integer');
+    }
+}
+```
+
+The above setup will protect your aggregate against concurrent updates between retrieving the aggregate from the database and saving it again. However, you may want to warn a user who's working with the aggregate's data in the user interface that once they store the object, someone else has modified it. To do this, you need to remember the version of the aggregate the user is looking at in the user's session. An outline of this solution:
+
+```php
+final class Order implement Aggregate, SpecifiesSchema
+{
+    // ...
+
+    public function setAggregateVersion(int $version)
+    {
+        $this->aggregateVersion($version);
+    }
+
+    public function aggregateVersion(): int
+    {
+        return $this->aggregateVersion;
+    }
+}
+
+/*
+ * Inside the controller which (for instance) renders a form, allowing the 
+ * user to modify some aspect of the aggregate:
+ */
+$order = $repository->getById($orderId);
+$session->set('aggregate_version', $order->aggregateVersion());
+// show form
+
+/*
+ * Inside the controller which modifies the aggregate based on the data the
+ * user provided:
+ */
+$order = $repository->getById($orderId);
+$order->setAggregateVersion($session->get('aggregate_version');
+
+$order->makeSomeChange();
+
+// This will compare the provided version to the version in the database: 
+$repository->save($order);
+```
+
 ## Supported PHP versions
 
 Though I think everybody should be on the latest PHP version, I know that many of us aren't. I've actually written this library to be useful for a project I'm working on right now, which is still on PHP 5.6. So... For now, this library will support PHP 5.6 and up.

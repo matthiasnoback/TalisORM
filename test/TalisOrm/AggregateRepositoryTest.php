@@ -15,6 +15,7 @@ use TalisOrm\AggregateRepositoryTest\LineUpdated;
 use TalisOrm\AggregateRepositoryTest\Order;
 use TalisOrm\AggregateRepositoryTest\OrderCreated;
 use TalisOrm\AggregateRepositoryTest\OrderId;
+use TalisOrm\AggregateRepositoryTest\OrderTalisOrmRepository;
 use TalisOrm\AggregateRepositoryTest\OrderUpdated;
 use TalisOrm\AggregateRepositoryTest\ProductId;
 use TalisOrm\AggregateRepositoryTest\Quantity;
@@ -24,7 +25,7 @@ use Webmozart\Assert\Assert;
 final class AggregateRepositoryTest extends TestCase
 {
     /**
-     * @var AggregateRepository
+     * @var OrderTalisOrmRepository
      */
     private $repository;
 
@@ -51,7 +52,9 @@ final class AggregateRepositoryTest extends TestCase
         $synchronizer->createSchema($schemaProvider->createSchema());
 
         $this->eventDispatcher = new EventDispatcherSpy();
-        $this->repository = new AggregateRepository($this->connection, $this->eventDispatcher);
+        $this->repository = new OrderTalisOrmRepository(
+            new AggregateRepository($this->connection, $this->eventDispatcher)
+        );
     }
 
     protected function tearDown()
@@ -70,7 +73,7 @@ final class AggregateRepositoryTest extends TestCase
         );
         $this->repository->save($aggregate);
 
-        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
         self::assertEquals([new OrderCreated()], $this->eventDispatcher->dispatchedEvents());
@@ -90,7 +93,7 @@ final class AggregateRepositoryTest extends TestCase
         $aggregate->update(self::createDateTimeImmutable('2018-11-05'));
         $this->repository->save($aggregate);
 
-        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
         self::assertEquals(
@@ -100,6 +103,61 @@ final class AggregateRepositoryTest extends TestCase
             ],
             $this->eventDispatcher->dispatchedEvents()
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_guards_against_concurrent_updates()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            self::createDateTimeImmutable('2018-10-03')
+        );
+        $this->repository->save($aggregate);
+
+        // we fetch the aggregate in two different places
+        $aggregate1 = $this->repository->getById($aggregate->orderId());
+        $aggregate2 = $this->repository->getById($aggregate->orderId());
+
+        // we update the first aggregate
+        $aggregate1->update(self::createDateTimeImmutable('2018-11-05'));
+        $this->repository->save($aggregate1);
+
+        $this->expectException(ConcurrentUpdate::class);
+        /*
+         * Now we save the other aggregate. This results in a concurrency issue, since it has the same version as the
+         * first aggregate which we just saved to the database.
+         */
+        $this->repository->save($aggregate2);
+    }
+
+    /**
+     * @test
+     */
+    public function it_guards_against_concurrent_updates_if_the_aggregate_has_a_lower_version()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            self::createDateTimeImmutable('2018-10-03')
+        );
+        $this->repository->save($aggregate);
+
+        // we fetch the aggregate in two different places
+        $aggregate1 = $this->repository->getById($aggregate->orderId());
+        $aggregate2 = $this->repository->getById($aggregate->orderId());
+
+        // we update the first aggregate
+        $aggregate1->update(self::createDateTimeImmutable('2018-11-05'));
+        $this->repository->save($aggregate1);
+
+        $this->expectException(ConcurrentUpdate::class);
+        /*
+         * Now we save the other aggregate. This results in a concurrency issue, since it has a lower version than the
+         * first aggregate which we just saved to the database.
+         */
+        $aggregate2->setAggregateVersion(0);
+        $this->repository->save($aggregate2);
     }
 
     /**
@@ -118,7 +176,7 @@ final class AggregateRepositoryTest extends TestCase
         );
         $this->repository->save($aggregate);
 
-        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
         self::assertEquals(
@@ -151,7 +209,7 @@ final class AggregateRepositoryTest extends TestCase
         );
         $this->repository->save($aggregate);
 
-        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
         self::assertEquals(
@@ -192,7 +250,7 @@ final class AggregateRepositoryTest extends TestCase
         );
         $this->repository->save($aggregate);
 
-        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
         self::assertEquals(
@@ -230,7 +288,7 @@ final class AggregateRepositoryTest extends TestCase
         $aggregate->deleteLine(new LineNumber(2));
         $this->repository->save($aggregate);
 
-        $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
         self::assertEquals(
@@ -263,7 +321,7 @@ final class AggregateRepositoryTest extends TestCase
         $this->repository->delete($aggregate);
 
         $this->expectException(AggregateNotFoundException::class);
-        $this->repository->getById(Order::class, $aggregate->orderId());
+        $this->repository->getById($aggregate->orderId());
     }
 
     /**

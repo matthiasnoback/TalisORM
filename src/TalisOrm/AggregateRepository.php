@@ -31,6 +31,7 @@ final class AggregateRepository
 
     /**
      * @param Aggregate $aggregate
+     * @throws ConcurrentUpdate (only when you use optimistic concurrency locking)
      * @return void
      */
     public function save(Aggregate $aggregate)
@@ -118,7 +119,19 @@ final class AggregateRepository
     private function insertOrUpdate(Entity $entity)
     {
         if ($this->exists($entity::tableName(), $entity->identifier())) {
-            $this->connection->update($entity::tableName(), $entity->state(), $entity->identifier());
+            $state = $entity->state();
+            if (array_key_exists(Aggregate::VERSION_COLUMN, $state)) {
+                $aggregateVersion = $state[Aggregate::VERSION_COLUMN];
+                $aggregateVersionInDb = (int)$this->select(
+                    Aggregate::VERSION_COLUMN,
+                    $entity->tableName(),
+                    $entity->identifier()
+                )->fetchColumn();
+                if ($aggregateVersionInDb >= $aggregateVersion) {
+                    throw ConcurrentUpdate::ofEntity($entity);
+                }
+            }
+            $this->connection->update($entity::tableName(), $state, $entity->identifier());
         } else {
             $this->connection->insert($entity::tableName(), $entity->state());
         }

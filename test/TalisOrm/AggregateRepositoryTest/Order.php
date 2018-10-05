@@ -35,6 +35,11 @@ final class Order implements Aggregate, SpecifiesSchema
      */
     private $deletedChildEntities = [];
 
+    /**
+     * @var int
+     */
+    private $aggregateVersion;
+
     private function __construct()
     {
     }
@@ -137,10 +142,13 @@ final class Order implements Aggregate, SpecifiesSchema
 
     public function state()
     {
+        $this->aggregateVersion++;
+
         return [
             'order_id' => $this->orderId->orderId(),
             'company_id' => $this->orderId->companyId(),
-            'order_date' => $this->orderDate->format('Y-m-d')
+            'order_date' => $this->orderDate->format('Y-m-d'),
+            Aggregate::VERSION_COLUMN => $this->aggregateVersion
         ];
     }
 
@@ -162,6 +170,8 @@ final class Order implements Aggregate, SpecifiesSchema
             Assert::isInstanceOf($entity, Line::class);
             $order->lines[] = $entity;
         }
+
+        $order->aggregateVersion = (int)$aggregateState[Aggregate::VERSION_COLUMN];
 
         return $order;
     }
@@ -210,8 +220,27 @@ final class Order implements Aggregate, SpecifiesSchema
         $table->addColumn('order_id', 'string');
         $table->addColumn('company_id', 'integer');
         $table->addColumn('order_date', 'date');
+        $table->addColumn(Aggregate::VERSION_COLUMN, 'integer');
         $table->addUniqueIndex(['order_id', 'company_id']);
 
         Line::specifySchema($schema);
+    }
+
+    /**
+     * @return int
+     */
+    public function aggregateVersion()
+    {
+        return $this->aggregateVersion;
+    }
+
+    /**
+     * @param int $aggregateVersion
+     * @return void
+     */
+    public function setAggregateVersion($aggregateVersion)
+    {
+        Assert::integer($aggregateVersion);
+        $this->aggregateVersion = $aggregateVersion;
     }
 }
