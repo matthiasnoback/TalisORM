@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace TalisOrm;
 
+use TalisOrm\DomainEvents\EventRecordingCapabilities;
+
 interface Aggregate extends Entity
 {
     /**
@@ -58,4 +60,13 @@ interface Aggregate extends Entity
      * @return ChildEntity[]
      */
     public function deletedChildEntities(): array;
+
+    /**
+     * Return domain events that have been recorded internally, and immediately forget about them. That is: a second
+     * call to this method would return an empty array.
+     *
+     * @see EventRecordingCapabilities
+     * @return object[]
+     */
+    public function releaseEvents(): array;
 }

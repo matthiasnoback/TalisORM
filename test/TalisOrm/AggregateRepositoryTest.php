@@ -8,9 +8,15 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use PHPUnit\Framework\TestCase;
+use TalisOrm\AggregateRepositoryTest\EventDispatcherSpy;
+use TalisOrm\AggregateRepositoryTest\LineAdded;
+use TalisOrm\AggregateRepositoryTest\LineDeleted;
 use TalisOrm\AggregateRepositoryTest\LineNumber;
+use TalisOrm\AggregateRepositoryTest\LineUpdated;
 use TalisOrm\AggregateRepositoryTest\Order;
+use TalisOrm\AggregateRepositoryTest\OrderCreated;
 use TalisOrm\AggregateRepositoryTest\OrderId;
+use TalisOrm\AggregateRepositoryTest\OrderUpdated;
 use TalisOrm\AggregateRepositoryTest\ProductId;
 use TalisOrm\AggregateRepositoryTest\Quantity;
 use TalisOrm\Schema\AggregateSchemaProvider;
@@ -22,6 +28,11 @@ final class AggregateRepositoryTest extends TestCase
      * @var AggregateRepository
      */
     private $repository;
+
+    /**
+     * @var EventDispatcherSpy
+     */
+    private $eventDispatcher;
 
     /**
      * @var Connection
@@ -40,7 +51,8 @@ final class AggregateRepositoryTest extends TestCase
         $synchronizer = new SingleDatabaseSynchronizer($this->connection);
         $synchronizer->createSchema($schemaProvider->createSchema());
 
-        $this->repository = new AggregateRepository($this->connection);
+        $this->eventDispatcher = new EventDispatcherSpy();
+        $this->repository = new AggregateRepository($this->connection, $this->eventDispatcher);
     }
 
     protected function tearDown()
@@ -62,6 +74,7 @@ final class AggregateRepositoryTest extends TestCase
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
+        self::assertEquals([new OrderCreated()], $this->eventDispatcher->dispatchedEvents());
     }
 
     /**
@@ -81,6 +94,13 @@ final class AggregateRepositoryTest extends TestCase
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
+        self::assertEquals(
+            [
+                new OrderCreated(),
+                new OrderUpdated()
+            ],
+            $this->eventDispatcher->dispatchedEvents()
+        );
     }
 
     /**
@@ -102,6 +122,13 @@ final class AggregateRepositoryTest extends TestCase
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
+        self::assertEquals(
+            [
+                new OrderCreated(),
+                new LineAdded()
+            ],
+            $this->eventDispatcher->dispatchedEvents()
+        );
     }
 
     /**
@@ -128,6 +155,14 @@ final class AggregateRepositoryTest extends TestCase
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
+        self::assertEquals(
+            [
+                new OrderCreated(),
+                new LineAdded(),
+                new LineAdded()
+            ],
+            $this->eventDispatcher->dispatchedEvents()
+        );
     }
 
     /**
@@ -161,6 +196,15 @@ final class AggregateRepositoryTest extends TestCase
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
+        self::assertEquals(
+            [
+                new OrderCreated(),
+                new LineAdded(),
+                new LineAdded(),
+                new LineUpdated(),
+            ],
+            $this->eventDispatcher->dispatchedEvents()
+        );
     }
 
     /**
@@ -190,6 +234,15 @@ final class AggregateRepositoryTest extends TestCase
         $fromDatabase = $this->repository->getById(Order::class, $aggregate->orderId());
 
         self::assertEquals($aggregate, $fromDatabase);
+        self::assertEquals(
+            [
+                new OrderCreated(),
+                new LineAdded(),
+                new LineAdded(),
+                new LineDeleted(),
+            ],
+            $this->eventDispatcher->dispatchedEvents()
+        );
     }
 
     /**
