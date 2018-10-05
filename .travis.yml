@@ -11,5 +11,4 @@ install:
   - composer install --prefer-dist
 
 script:
-  - vendor/bin/phpunit
-  - vendor/bin/phpstan analyse
+  - ./run_tests.sh
