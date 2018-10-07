@@ -9,8 +9,9 @@ use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
-use TalisOrm\DomainEvents\RecordsDomainEvents;
+use TalisOrm\ImmutableState;
 use TalisOrm\Schema\SpecifiesSchema;
+use TalisOrm\State;
 use Webmozart\Assert\Assert;
 
 final class Order implements Aggregate, SpecifiesSchema
@@ -109,21 +110,22 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public function state(): array
+    public function state(): State
     {
-        return [
-            'order_id' => $this->orderId->orderId(),
-            'company_id' => $this->orderId->companyId(),
-            'order_date' => $this->orderDate->format('Y-m-d')
-        ];
+        $state = new ImmutableState();
+        $state = $state->withString('order_id', $this->orderId->orderId());
+        $state = $state->withInt('company_id', $this->orderId->companyId());
+        $state = $state->withString('order_date', $this->orderDate->format('Y-m-d'));
+
+        return $state;
     }
 
-    public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate
+    public static function fromState(State $aggregateState, array $childEntityStatesByType): Aggregate
     {
         $order = new self();
 
-        $order->orderId = new OrderId($aggregateState['order_id'], (int)$aggregateState['company_id']);
-        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $aggregateState['order_date']);
+        $order->orderId = new OrderId($aggregateState->string('order_id'), $aggregateState->int('company_id'));
+        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $aggregateState->string('order_date'));
 
         if (!$dateTimeImmutable instanceof DateTimeImmutable) {
             throw new \RuntimeException('Invalid date string from database');

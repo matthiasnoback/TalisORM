@@ -109,9 +109,9 @@ final class AggregateRepository
     private function insertOrUpdate(Entity $entity): void
     {
         if ($this->exists($entity->tableName(), $entity->identifier())) {
-            $this->connection->update($entity->tableName(), $entity->state(), $entity->identifier());
+            $this->connection->update($entity->tableName(), $entity->state()->toArray(), $entity->identifier());
         } else {
-            $this->connection->insert($entity->tableName(), $entity->state());
+            $this->connection->insert($entity->tableName(), $entity->state()->toArray());
         }
     }
 
@@ -124,7 +124,14 @@ final class AggregateRepository
 
     private function fetchAll(string $tableName, array $identifier): array
     {
-        return $this->select('*', $tableName, $identifier)->fetchAll(PDO::FETCH_ASSOC);
+        $states = [];
+        $rows = $this->select('*', $tableName, $identifier)->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($rows as $state) {
+            $states[] = new ImmutableState($state);
+        }
+
+        return $states;
     }
 
     /**
