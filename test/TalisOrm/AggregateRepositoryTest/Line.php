@@ -7,7 +7,9 @@ use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\Entity;
+use TalisOrm\ImmutableState;
 use TalisOrm\Schema\SpecifiesSchema;
+use TalisOrm\State;
 
 final class Line implements ChildEntity, SpecifiesSchema
 {
@@ -77,25 +79,26 @@ final class Line implements ChildEntity, SpecifiesSchema
         return $this->quantity;
     }
 
-    public function state(): array
+    public function state(): State
     {
-        return [
-            'order_id' => $this->orderId->orderId(),
-            'company_id' => $this->orderId->companyId(),
-            'line_number' => $this->lineNumber->asInt(),
-            'product_id' => $this->productId->productId(),
-            'quantity' => $this->quantity->asInt()
-        ];
+        $state = new ImmutableState();
+        $state = $state->withString('order_id', $this->orderId->orderId());
+        $state = $state->withInt('company_id', $this->orderId->companyId());
+        $state = $state->withInt('line_number', $this->lineNumber->asInt());
+        $state = $state->withString('product_id', $this->productId->productId());
+        $state = $state->withInt('quantity', $this->quantity->asInt());
+
+        return $state;
     }
 
-    public static function fromState(array $state): Entity
+    public static function fromState(State $state): Entity
     {
         $line = new self();
 
-        $line->orderId = new OrderId($state['order_id'], (int)$state['company_id']);
-        $line->lineNumber = new LineNumber((int)$state['line_number']);
-        $line->productId = new ProductId($state['product_id'], (int)$state['company_id']);
-        $line->quantity = new Quantity((int)$state['quantity']);
+        $line->orderId = new OrderId($state->string('order_id'), $state->int('company_id'));
+        $line->lineNumber = new LineNumber($state->int('line_number'));
+        $line->productId = new ProductId($state->string('product_id'), $state->int('company_id'));
+        $line->quantity = new Quantity($state->int('quantity'));
 
         return $line;
     }

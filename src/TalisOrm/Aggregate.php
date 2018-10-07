@@ -48,11 +48,11 @@ interface Aggregate extends Entity
      *     }
      * }
      *
-     * @param array $aggregateState
+     * @param State $aggregateState
      * @param array $childEntityStatesByType
      * @return static
      */
-    public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate;
+    public static function fromState(State $aggregateState, array $childEntityStatesByType): Aggregate;
 
     /**
      * Return any deleted child entities.

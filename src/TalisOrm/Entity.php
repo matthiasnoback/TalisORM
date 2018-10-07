@@ -14,9 +14,9 @@ interface Entity
      *         'order_date' => '2018-10-03'
      *     ];
      *
-     * @return array
+     * @return State
      */
-    public function state(): array;
+    public function state(): State;
 
     /**
      * Return the name of the table for this entity. Sample implementation:
