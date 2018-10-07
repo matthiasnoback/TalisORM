@@ -43,7 +43,7 @@ $synchronizer = new SingleDatabaseSynchronizer($connection);
 $synchronizer->createSchema($schemaProvider->createSchema());
 ```
 
-You could also use [Doctrine Migrations](https://github.com/doctrine/migrations/) to automatically generate migrations based on schema changes. It may need a bit of setup, but once you have it working, you'll notice that this tool needs a `SchemaProviderInterface` instance. You can easily set up an adapter for `AggregateSchemaProvider`. For example:
+You could also use [Doctrine Migrations](https://github.com/doctrine/migrations/) to automatically generate migrations based on schema changes. It may need a bit of setup, but once you have it working, you'll notice that this tool needs a `SchemaProviderInterface` instance (note: this interface is only available in recent versions of `doctrine/migrations`, which requires PHP 7). You can easily set up an adapter for `AggregateSchemaProvider`. For example:
 
 ```php
 final class AggregateMigrationsSchemaProvider implements SchemaProviderInterface
