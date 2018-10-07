@@ -325,6 +325,32 @@ final class AggregateRepositoryTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function it_does_not_delete_all_aggregates_of_the_same_type()
+    {
+        $aggregate1 = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            self::createDateTimeImmutable('2018-10-03')
+        );
+        $this->repository->save($aggregate1);
+        $aggregate2 = Order::create(
+            new OrderId('c8ee1ee6-7757-4661-81fb-5b327badbff8', 5),
+            self::createDateTimeImmutable('2018-10-04')
+        );
+        $this->repository->save($aggregate2);
+
+        $this->repository->delete($aggregate1);
+
+        // aggregate2 should not be touched
+        self::assertEquals($aggregate2, $this->repository->getById($aggregate2->orderId()));
+
+        // aggregate1 can't be found
+        $this->expectException(AggregateNotFoundException::class);
+        $this->repository->getById($aggregate1->orderId());
+    }
+
+    /**
      * @param string $date
      * @return DateTimeImmutable
      */
