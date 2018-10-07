@@ -39,7 +39,7 @@ final class AggregateRepository
             $this->insertOrUpdate($aggregate);
 
             foreach ($aggregate->deletedChildEntities() as $childEntity) {
-                $this->connection->delete($childEntity->tableName(), $childEntity->identifier());
+                $this->connection->delete($childEntity::tableName(), $childEntity->identifier());
             }
 
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
@@ -105,11 +105,11 @@ final class AggregateRepository
     public function delete(Aggregate $aggregate)
     {
         $this->connection->transactional(function () use ($aggregate) {
-            $this->connection->delete($aggregate->tableName(), $aggregate->identifier());
+            $this->connection->delete($aggregate::tableName(), $aggregate->identifier());
 
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
                 foreach ($childEntities as $childEntity) {
-                    $this->connection->delete($childEntity->tableName(), $childEntity->identifier());
+                    $this->connection->delete($childEntity::tableName(), $childEntity->identifier());
                 }
             }
         });
@@ -117,10 +117,10 @@ final class AggregateRepository
 
     private function insertOrUpdate(Entity $entity)
     {
-        if ($this->exists($entity->tableName(), $entity->identifier())) {
-            $this->connection->update($entity->tableName(), $entity->state(), $entity->identifier());
+        if ($this->exists($entity::tableName(), $entity->identifier())) {
+            $this->connection->update($entity::tableName(), $entity->state(), $entity->identifier());
         } else {
-            $this->connection->insert($entity->tableName(), $entity->state());
+            $this->connection->insert($entity::tableName(), $entity->state());
         }
     }
 
