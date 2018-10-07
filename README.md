@@ -64,3 +64,7 @@ final class AggregateMigrationsSchemaProvider implements SchemaProviderInterface
     }
 }
 ```
+
+## Supported PHP versions
+
+Though I think everybody should be on the latest PHP version, I know that many of us aren't. I've actually written this library to be useful for a project I'm working on right now, which is still on PHP 5.6. So... For now, this library will support PHP 5.6 and up.
