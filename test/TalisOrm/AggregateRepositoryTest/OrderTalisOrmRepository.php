@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
@@ -21,19 +20,19 @@ final class OrderTalisOrmRepository implements OrderRepository
         $this->aggregateRepository = $aggregateRepository;
     }
 
-    public function save(Order $order): void
+    public function save(Order $order)
     {
         $this->aggregateRepository->save($order);
 
         // you may dispatch events at this point
     }
 
-    public function getById(OrderId $orderId): Order
+    public function getById(OrderId $orderId)
     {
         return $this->aggregateRepository->getById(Order::class, $orderId);
     }
 
-    public function delete(Order $order): void
+    public function delete(Order $order)
     {
         $this->aggregateRepository->delete($order);
     }

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm;
 
@@ -63,7 +62,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_saves_an_aggregate(): void
+    public function it_saves_an_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -80,7 +79,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_an_aggregate(): void
+    public function it_updates_an_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -106,7 +105,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_saves_an_aggregate_with_its_child_entities(): void
+    public function it_saves_an_aggregate_with_its_child_entities()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -134,7 +133,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_creates_multiple_child_entities_in_the_database(): void
+    public function it_creates_multiple_child_entities_in_the_database()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -168,7 +167,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_updates_multiple_child_entities_in_the_database(): void
+    public function it_updates_multiple_child_entities_in_the_database()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -210,7 +209,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate(): void
+    public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -248,7 +247,7 @@ final class AggregateRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function it_deletes_an_aggregate_with_its_child_entities(): void
+    public function it_deletes_an_aggregate_with_its_child_entities()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
@@ -267,8 +266,14 @@ final class AggregateRepositoryTest extends TestCase
         $this->repository->getById(Order::class, $aggregate->orderId());
     }
 
-    private static function createDateTimeImmutable($date): DateTimeImmutable
+    /**
+     * @param string $date
+     * @return DateTimeImmutable
+     */
+    private static function createDateTimeImmutable($date)
     {
+        Assert::string($date);
+
         $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $date);
         Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);
 

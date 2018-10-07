@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\Schema;
 
@@ -9,6 +8,7 @@ interface SpecifiesSchema
 {
     /**
      * @param Schema $schema
+     * @return void
      */
-    public static function specifySchema(Schema $schema): void;
+    public static function specifySchema(Schema $schema);
 }

@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
 use TalisOrm\AggregateId;
+use Webmozart\Assert\Assert;
 
 final class OrderId implements AggregateId
 {
@@ -17,23 +17,34 @@ final class OrderId implements AggregateId
      */
     private $companyId;
 
-    public function __construct(string $orderId, int $companyId)
+    public function __construct($orderId, $companyId)
     {
+        Assert::string($orderId);
         $this->orderId = $orderId;
+        Assert::integer($companyId);
         $this->companyId = $companyId;
     }
 
-    public function orderId(): string
+    /**
+     * @return string
+     */
+    public function orderId()
     {
         return $this->orderId;
     }
 
-    public function companyId(): int
+    /**
+     * @return int
+     */
+    public function companyId()
     {
         return $this->companyId;
     }
 
-    public function __toString(): string
+    /**
+     * @return string
+     */
+    public function __toString()
     {
         return sprintf('%s-%d', $this->orderId, $this->companyId);
     }

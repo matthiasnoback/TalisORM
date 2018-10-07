@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
@@ -9,7 +8,6 @@ use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
-use TalisOrm\DomainEvents\RecordsDomainEvents;
 use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
 
@@ -41,7 +39,12 @@ final class Order implements Aggregate, SpecifiesSchema
     {
     }
 
-    public static function create(OrderId $orderId, DateTimeImmutable $orderDate): Order
+    /**
+     * @param OrderId $orderId
+     * @param DateTimeImmutable $orderDate
+     * @return Order
+     */
+    public static function create(OrderId $orderId, DateTimeImmutable $orderDate)
     {
         $order = new self();
 
@@ -53,21 +56,37 @@ final class Order implements Aggregate, SpecifiesSchema
         return $order;
     }
 
-    public function update(DateTimeImmutable $orderDate): void
+    /**
+     * @param DateTimeImmutable $orderDate
+     * @return void
+     */
+    public function update(DateTimeImmutable $orderDate)
     {
         $this->orderDate = $orderDate;
 
         $this->recordThat(new OrderUpdated());
     }
 
-    public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
+    /**
+     * @param LineNumber $lineId
+     * @param ProductId $productId
+     * @param Quantity $quantity
+     * @return void
+     */
+    public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity)
     {
         $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity);
 
         $this->recordThat(new LineAdded());
     }
 
-    public function updateLine(LineNumber $lineId, ProductId $productId, Quantity $quantity): void
+    /**
+     * @param LineNumber $lineId
+     * @param ProductId $productId
+     * @param Quantity $quantity
+     * @return void
+     */
+    public function updateLine(LineNumber $lineId, ProductId $productId, Quantity $quantity)
     {
         foreach ($this->lines as $index => $line) {
             if ($line->lineNumber()->asInt() === $lineId->asInt()) {
@@ -78,7 +97,11 @@ final class Order implements Aggregate, SpecifiesSchema
         $this->recordThat(new LineUpdated());
     }
 
-    public function deleteLine(LineNumber $lineId): void
+    /**
+     * @param LineNumber $lineId
+     * @return void
+     */
+    public function deleteLine(LineNumber $lineId)
     {
         foreach ($this->lines as $index => $line) {
             if ($line->lineNumber()->asInt() === $lineId->asInt()) {
@@ -90,26 +113,29 @@ final class Order implements Aggregate, SpecifiesSchema
         $this->recordThat(new LineDeleted());
     }
 
-    public function orderId(): OrderId
+    /**
+     * @return OrderId
+     */
+    public function orderId()
     {
         return $this->orderId;
     }
 
-    public function childEntitiesByType(): array
+    public function childEntitiesByType()
     {
         return [
             Line::class => $this->lines
         ];
     }
 
-    public static function childEntityTypes(): array
+    public static function childEntityTypes()
     {
         return [
             Line::class
         ];
     }
 
-    public function state(): array
+    public function state()
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -118,7 +144,7 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate
+    public static function fromState(array $aggregateState, array $childEntityStatesByType)
     {
         $order = new self();
 
@@ -140,12 +166,12 @@ final class Order implements Aggregate, SpecifiesSchema
         return $order;
     }
 
-    public static function tableName(): string
+    public static function tableName()
     {
         return 'orders';
     }
 
-    public function identifier(): array
+    public function identifier()
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -153,7 +179,7 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public static function identifierForQuery(AggregateId $aggregateId): array
+    public static function identifierForQuery(AggregateId $aggregateId)
     {
         Assert::isInstanceOf($aggregateId, OrderId::class);
         /** @var OrderId $aggregateId */
@@ -164,7 +190,7 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public function deletedChildEntities(): array
+    public function deletedChildEntities()
     {
         $deletedChildEntities = $this->deletedChildEntities;
 
@@ -173,12 +199,12 @@ final class Order implements Aggregate, SpecifiesSchema
         return $deletedChildEntities;
     }
 
-    private function deleteChildEntity(ChildEntity $childEntity): void
+    private function deleteChildEntity(ChildEntity $childEntity)
     {
         $this->deletedChildEntities[] = $childEntity;
     }
 
-    public static function specifySchema(Schema $schema): void
+    public static function specifySchema(Schema $schema)
     {
         $table = $schema->createTable('orders');
         $table->addColumn('order_id', 'string');

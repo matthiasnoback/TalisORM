@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
@@ -9,14 +8,17 @@ final class EventDispatcherSpy implements EventDispatcher
 {
     private $dispatchedEvents = [];
 
-    public function dispatch(...$events)
+    public function dispatch(array $events)
     {
         foreach ($events as $event) {
             $this->dispatchedEvents[] = $event;
         }
     }
 
-    public function dispatchedEvents(): array
+    /**
+     * @return object[]
+     */
+    public function dispatchedEvents()
     {
         return $this->dispatchedEvents;
     }

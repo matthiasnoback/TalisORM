@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\Schema;
 
@@ -25,7 +24,10 @@ final class AggregateSchemaProvider
         $this->aggregateClasses = $aggregateClasses;
     }
 
-    public function createSchema(): Schema
+    /**
+     * @return Schema
+     */
+    public function createSchema()
     {
         $schema = $this->connection->getSchemaManager()->createSchema();
 

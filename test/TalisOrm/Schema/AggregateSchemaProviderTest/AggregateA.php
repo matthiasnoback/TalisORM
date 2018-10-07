@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\Schema\AggregateSchemaProviderTest;
 
@@ -8,7 +7,7 @@ use TalisOrm\Schema\SpecifiesSchema;
 
 final class AggregateA implements SpecifiesSchema
 {
-    public static function specifySchema(Schema $schema): void
+    public static function specifySchema(Schema $schema)
     {
         $table = $schema->createTable('a');
         $table->addColumn('id', 'string');

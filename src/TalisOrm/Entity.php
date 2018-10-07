@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm;
 
@@ -16,7 +15,7 @@ interface Entity
      *
      * @return array
      */
-    public function state(): array;
+    public function state();
 
     /**
      * Return the name of the table for this entity. Sample implementation:
@@ -25,7 +24,7 @@ interface Entity
      *
      * @return string
      */
-    public static function tableName(): string;
+    public static function tableName();
 
     /**
      * Return an array of columns and values which uniquely identify this entity. Sample implementation:
@@ -37,7 +36,7 @@ interface Entity
      *
      * @return array
      */
-    public function identifier(): array;
+    public function identifier();
 
     /**
      * Return an array of columns and values that should be used to find the aggregate with the given ID. Sample
@@ -51,5 +50,5 @@ interface Entity
      * @param AggregateId $aggregateId
      * @return array
      */
-    public static function identifierForQuery(AggregateId $aggregateId): array;
+    public static function identifierForQuery(AggregateId $aggregateId);
 }

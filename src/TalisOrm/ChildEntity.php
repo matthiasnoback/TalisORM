@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm;
 
@@ -19,5 +18,5 @@ interface ChildEntity extends Entity
      * @param array $state
      * @return static
      */
-    public static function fromState(array $state): Entity;
+    public static function fromState(array $state);
 }

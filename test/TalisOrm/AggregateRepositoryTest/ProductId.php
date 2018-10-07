@@ -1,7 +1,8 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
+
+use Webmozart\Assert\Assert;
 
 final class ProductId
 {
@@ -15,18 +16,26 @@ final class ProductId
      */
     private $companyId;
 
-    public function __construct(string $productId, int $companyId)
+    public function __construct($productId, $companyId)
     {
+        Assert::string($productId);
         $this->productId = $productId;
+        Assert::integer($companyId);
         $this->companyId = $companyId;
     }
 
-    public function productId(): string
+    /**
+     * @return string
+     */
+    public function productId()
     {
         return $this->productId;
     }
 
-    public function companyId(): int
+    /**
+     * @return int
+     */
+    public function companyId()
     {
         return $this->companyId;
     }

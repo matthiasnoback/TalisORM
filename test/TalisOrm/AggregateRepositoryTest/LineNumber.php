@@ -1,7 +1,8 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
+
+use Webmozart\Assert\Assert;
 
 final class LineNumber
 {
@@ -10,12 +11,16 @@ final class LineNumber
      */
     private $lineNumber;
 
-    public function __construct(int $lineNumber)
+    public function __construct($lineNumber)
     {
+        Assert::integer($lineNumber);
         $this->lineNumber = $lineNumber;
     }
 
-    public function asInt(): int
+    /**
+     * @return int
+     */
+    public function asInt()
     {
         return $this->lineNumber;
     }

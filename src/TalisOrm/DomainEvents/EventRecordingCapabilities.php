@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\DomainEvents;
 
@@ -20,8 +19,9 @@ trait EventRecordingCapabilities
      * Use this method inside your aggregate to record new domain events.
      *
      * @param object $event
+     * @return void
      */
-    protected function recordThat($event): void
+    protected function recordThat($event)
     {
         Assert::object($event);
 
@@ -32,7 +32,7 @@ trait EventRecordingCapabilities
      * @see \TalisOrm\Aggregate::releaseEvents()
      * @return object[]
      */
-    public function releaseEvents(): array
+    public function releaseEvents()
     {
         $events = $this->events;
 

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm;
 
@@ -11,7 +10,7 @@ use function is_a;
 use LogicException;
 use PDO;
 use TalisOrm\DomainEvents\EventDispatcher;
-use TalisOrm\DomainEvents\RecordsDomainEvents;
+use Webmozart\Assert\Assert;
 
 final class AggregateRepository
 {
@@ -31,7 +30,11 @@ final class AggregateRepository
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function save(Aggregate $aggregate): void
+    /**
+     * @param Aggregate $aggregate
+     * @return void
+     */
+    public function save(Aggregate $aggregate)
     {
         $this->connection->transactional(function () use ($aggregate) {
             $this->insertOrUpdate($aggregate);
@@ -47,11 +50,18 @@ final class AggregateRepository
             }
         });
 
-        $this->eventDispatcher->dispatch(...$aggregate->releaseEvents());
+        $this->eventDispatcher->dispatch($aggregate->releaseEvents());
     }
 
-    public function getById(string $aggregateClass, AggregateId $aggregateId)
+    /**
+     * @param string $aggregateClass
+     * @param AggregateId $aggregateId
+     * @return Aggregate
+     */
+    public function getById($aggregateClass, AggregateId $aggregateId)
     {
+        Assert::string($aggregateClass);
+
         if (!is_a($aggregateClass, Aggregate::class, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Class "%s" has to implement "%s"',
@@ -83,7 +93,7 @@ final class AggregateRepository
 
         $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
 
-        if (!$aggregate instanceof $aggregateClass) {
+        if (!$aggregate instanceof $aggregateClass || !$aggregate instanceof Aggregate) {
             throw new LogicException(sprintf(
                 'Method "%s::fromState()" was expected to return an instance of "%1$s"',
                 $aggregateClass
@@ -93,7 +103,7 @@ final class AggregateRepository
         return $aggregate;
     }
 
-    public function delete(Aggregate $aggregate): void
+    public function delete(Aggregate $aggregate)
     {
         $this->connection->transactional(function () use ($aggregate) {
             $this->connection->delete($aggregate->tableName(), $aggregate->identifier());
@@ -106,7 +116,7 @@ final class AggregateRepository
         });
     }
 
-    private function insertOrUpdate(Entity $entity): void
+    private function insertOrUpdate(Entity $entity)
     {
         if ($this->exists($entity->tableName(), $entity->identifier())) {
             $this->connection->update($entity->tableName(), $entity->state(), $entity->identifier());
@@ -115,15 +125,29 @@ final class AggregateRepository
         }
     }
 
-    private function exists(string $tableName, array $identifier): bool
+    /**
+     * @param string $tableName
+     * @param array $identifier
+     * @return bool
+     */
+    private function exists($tableName, array $identifier)
     {
+        Assert::string($tableName);
+
         $count = $this->select('COUNT(*)', $tableName, $identifier)->fetchColumn();
 
         return (int)$count > 0;
     }
 
-    private function fetchAll(string $tableName, array $identifier): array
+    /**
+     * @param string $tableName
+     * @param array $identifier
+     * @return array[]
+     */
+    private function fetchAll($tableName, array $identifier)
     {
+        Assert::string($tableName);
+
         return $this->select('*', $tableName, $identifier)->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -134,10 +158,12 @@ final class AggregateRepository
      * @param string $tableExpression
      * @param array $where
      * @return ResultStatement
-     * @throws DBALException
      */
-    private function select(string $selectExpression, string $tableExpression, array $where): ResultStatement
+    private function select($selectExpression, $tableExpression, array $where)
     {
+        Assert::string($selectExpression);
+        Assert::string($tableExpression);
+
         $conditions = [];
         $values = [];
         foreach ($where as $columnName => $value) {

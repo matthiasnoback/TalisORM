@@ -1,12 +1,10 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
 use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
-use TalisOrm\Entity;
 use TalisOrm\Schema\SpecifiesSchema;
 
 final class Line implements ChildEntity, SpecifiesSchema
@@ -35,12 +33,19 @@ final class Line implements ChildEntity, SpecifiesSchema
     {
     }
 
+    /**
+     * @param OrderId $orderId
+     * @param LineNumber $lineNumber
+     * @param ProductId $productId
+     * @param Quantity $quantity
+     * @return Line
+     */
     public static function create(
         OrderId $orderId,
         LineNumber $lineNumber,
         ProductId $productId,
         Quantity $quantity
-    ): Line {
+    ) {
         $line = new self();
 
         $line->orderId = $orderId;
@@ -51,33 +56,50 @@ final class Line implements ChildEntity, SpecifiesSchema
         return $line;
     }
 
-    public function update(ProductId $productId, Quantity $quantity): void
+    /**
+     * @param ProductId $productId
+     * @param Quantity $quantity
+     * @return void
+     */
+    public function update(ProductId $productId, Quantity $quantity)
     {
         $this->productId = $productId;
         $this->quantity = $quantity;
     }
 
-    public function lineNumber(): LineNumber
+    /**
+     * @return LineNumber
+     */
+    public function lineNumber()
     {
         return $this->lineNumber;
     }
 
-    public function orderId(): OrderId
+    /**
+     * @return OrderId
+     */
+    public function orderId()
     {
         return $this->orderId;
     }
 
-    public function productId(): ProductId
+    /**
+     * @return ProductId
+     */
+    public function productId()
     {
         return $this->productId;
     }
 
-    public function quantity(): Quantity
+    /**
+     * @return Quantity
+     */
+    public function quantity()
     {
         return $this->quantity;
     }
 
-    public function state(): array
+    public function state()
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -88,7 +110,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array $state): Entity
+    public static function fromState(array $state)
     {
         $line = new self();
 
@@ -100,12 +122,12 @@ final class Line implements ChildEntity, SpecifiesSchema
         return $line;
     }
 
-    public static function tableName(): string
+    public static function tableName()
     {
         return 'lines';
     }
 
-    public function identifier(): array
+    public function identifier()
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -114,7 +136,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function identifierForQuery(AggregateId $aggregateId): array
+    public static function identifierForQuery(AggregateId $aggregateId)
     {
         if (!$aggregateId instanceof OrderId) {
             throw new \InvalidArgumentException('Expected an instance of OrderId');
@@ -126,7 +148,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function specifySchema(Schema $schema): void
+    public static function specifySchema(Schema $schema)
     {
         $table = $schema->createTable('lines');
         $table->addColumn('order_id', 'string');

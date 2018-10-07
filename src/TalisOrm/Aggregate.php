@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm;
 
@@ -16,7 +15,7 @@ interface Aggregate extends Entity
      *
      * @return array
      */
-    public function childEntitiesByType(): array;
+    public function childEntitiesByType();
 
     /**
      * Return all child entity types for this aggregate. Sample implementation:
@@ -27,7 +26,7 @@ interface Aggregate extends Entity
      *
      * @return array
      */
-    public static function childEntityTypes(): array;
+    public static function childEntityTypes();
 
     /**
      * Recreate the root entity, based on the state that was retrieved from the database. This can be expected to be
@@ -52,14 +51,14 @@ interface Aggregate extends Entity
      * @param array $childEntityStatesByType
      * @return static
      */
-    public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate;
+    public static function fromState(array $aggregateState, array $childEntityStatesByType);
 
     /**
      * Return any deleted child entities.
      *
      * @return ChildEntity[]
      */
-    public function deletedChildEntities(): array;
+    public function deletedChildEntities();
 
     /**
      * Return domain events that have been recorded internally, and immediately forget about them. That is: a second
@@ -68,5 +67,5 @@ interface Aggregate extends Entity
      * @see EventRecordingCapabilities
      * @return object[]
      */
-    public function releaseEvents(): array;
+    public function releaseEvents();
 }

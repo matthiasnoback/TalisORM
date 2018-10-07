@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\AggregateRepositoryTest;
 
@@ -8,9 +7,21 @@ namespace TalisOrm\AggregateRepositoryTest;
  */
 interface OrderRepository
 {
-    public function save(Order $order): void;
+    /**
+     * @param Order $order
+     * @return void
+     */
+    public function save(Order $order);
 
-    public function getById(OrderId $orderId): Order;
+    /**
+     * @param OrderId $orderId
+     * @return Order
+     */
+    public function getById(OrderId $orderId);
 
-    public function delete(Order $order): void;
+    /**
+     * @param Order $order
+     * @return void
+     */
+    public function delete(Order $order);
 }

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace TalisOrm\Schema;
 
@@ -13,7 +12,7 @@ final class AggregateSchemaProviderTest extends TestCase
     /**
      * @test
      */
-    public function it_builds_up_a_schema_by_letting_the_aggregates_specify_their_own_tables(): void
+    public function it_builds_up_a_schema_by_letting_the_aggregates_specify_their_own_tables()
     {
         $schemaProvider = new AggregateSchemaProvider(
             DriverManager::getConnection([
