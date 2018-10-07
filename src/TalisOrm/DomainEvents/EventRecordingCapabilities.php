@@ -2,8 +2,6 @@
 
 namespace TalisOrm\DomainEvents;
 
-use InvalidArgumentException;
-use function is_object;
 use Webmozart\Assert\Assert;
 
 /**

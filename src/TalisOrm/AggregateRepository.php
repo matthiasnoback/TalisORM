@@ -3,7 +3,6 @@
 namespace TalisOrm;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ResultStatement;
 use InvalidArgumentException;
 use function is_a;
