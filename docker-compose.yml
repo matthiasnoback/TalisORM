@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+    mysql:
+        image: mysql:5.7
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+            MYSQL_DATABASE: 'default'
+
+    php56:
+        build: docker/php56/
+        image: talisorm/php56
+        volumes:
+            - ./:/app:cached
+
+    php72:
+        build: docker/php72/
+        image: talisorm/php72
+        volumes:
+            - ./:/app:cached
+
+    composer:
+        image: composer:latest
+        volumes:
+            - ./:/app:cached
+
+    phpstan:
+        build: docker/phpstan/
+        image: talisorm/phpstan
+        volumes:
+            - ./:/app:cached

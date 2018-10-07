@@ -4,7 +4,6 @@ namespace TalisOrm;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use PHPUnit\Framework\TestCase;
 use TalisOrm\AggregateRepositoryTest\EventDispatcherSpy;
@@ -22,7 +21,7 @@ use TalisOrm\AggregateRepositoryTest\Quantity;
 use TalisOrm\Schema\AggregateSchemaProvider;
 use Webmozart\Assert\Assert;
 
-final class AggregateRepositoryTest extends TestCase
+abstract class AbstractAggregateRepositoryTest extends TestCase
 {
     /**
      * @var OrderTalisOrmRepository
@@ -39,16 +38,20 @@ final class AggregateRepositoryTest extends TestCase
      */
     private $connection;
 
+    /**
+     * @return Connection
+     */
+    abstract protected function setUpConnection();
+
     protected function setUp()
     {
-        $this->connection = DriverManager::getConnection([
-            'driver' => 'pdo_sqlite'
-        ]);
+        $this->connection = $this->setUpConnection();
 
         $schemaProvider = new AggregateSchemaProvider($this->connection, [
             Order::class
         ]);
         $synchronizer = new SingleDatabaseSynchronizer($this->connection);
+        $synchronizer->dropAllSchema();
         $synchronizer->createSchema($schemaProvider->createSchema());
 
         $this->eventDispatcher = new EventDispatcherSpy();

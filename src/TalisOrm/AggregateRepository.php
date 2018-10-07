@@ -40,7 +40,10 @@ final class AggregateRepository
             $this->insertOrUpdate($aggregate);
 
             foreach ($aggregate->deletedChildEntities() as $childEntity) {
-                $this->connection->delete($childEntity::tableName(), $childEntity->identifier());
+                $this->connection->delete(
+                    $this->connection->quoteIdentifier($childEntity::tableName()),
+                    $childEntity->identifier()
+                );
             }
 
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
@@ -106,11 +109,18 @@ final class AggregateRepository
     public function delete(Aggregate $aggregate)
     {
         $this->connection->transactional(function () use ($aggregate) {
-            $this->connection->delete($aggregate::tableName(), $aggregate->identifier());
+            $this->connection->delete(
+                $this->connection->quoteIdentifier($aggregate::tableName()),
+                $aggregate->identifier()
+            );
 
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
                 foreach ($childEntities as $childEntity) {
-                    $this->connection->delete($childEntity::tableName(), $childEntity->identifier());
+                    /** @var ChildEntity $childEntity */
+                    $this->connection->delete(
+                        $this->connection->quoteIdentifier($childEntity::tableName()),
+                        $childEntity->identifier()
+                    );
                 }
             }
         });
@@ -131,9 +141,16 @@ final class AggregateRepository
                     throw ConcurrentUpdate::ofEntity($entity);
                 }
             }
-            $this->connection->update($entity::tableName(), $state, $entity->identifier());
+            $this->connection->update(
+                $this->connection->quoteIdentifier($entity::tableName()),
+                $state,
+                $entity->identifier()
+            );
         } else {
-            $this->connection->insert($entity::tableName(), $entity->state());
+            $this->connection->insert(
+                $this->connection->quoteIdentifier($entity::tableName()),
+                $entity->state()
+            );
         }
     }
 
@@ -184,7 +201,7 @@ final class AggregateRepository
         }
 
         $sql = 'SELECT ' . $selectExpression
-            . ' FROM ' . $tableExpression
+            . ' FROM ' . $this->connection->quoteIdentifier($tableExpression)
             . ' WHERE ' . implode(' AND ', $conditions);
 
         return $this->connection->executeQuery($sql, $values);

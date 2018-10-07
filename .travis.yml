@@ -1,19 +1,10 @@
-sudo: false
+sudo: required
 
-language: php
-
-matrix:
-  include:
-    - php: 5.6
-    - php: 7.2
-      env: PHPSTAN=true
-
-before_install:
-  - if ! [ -z "$PHPSTAN" ]; then composer require --dev --no-update phpstan/phpstan phpstan/phpstan-webmozart-assert; fi;
+services:
+  - docker
 
 install:
-  - composer install --prefer-dist
+  - docker-compose pull
 
 script:
-  - vendor/bin/phpunit
-  - if ! [ -z "$PHPSTAN" ]; then vendor/bin/phpstan analyse; fi;
+  - ./run_tests.sh
