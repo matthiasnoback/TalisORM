@@ -74,7 +74,7 @@ You need to take the following steps to make it work:
 Make sure the table definition for your aggregate has an `Aggregate::VERSION_COLUMN` column, and that your `fromState()` and `state()` methods are aware of it. For example:
 
 ```php
-final class Order implement Aggregate, SpecifiesSchema
+final class Order implements Aggregate, SpecifiesSchema
 {
     /**
      * @var int
