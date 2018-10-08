@@ -29,7 +29,7 @@ Aggregates can implement `SpecifiesSchema` and, yes, specify their own schema. T
 
 ```php
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
-use TalisOrm\Schema\AggregateSchemaProvider
+use TalisOrm\Schema\AggregateSchemaProvider;
 
 // set up or reuse a Doctrine\DBAL\Connection instance
 $connection = ...;
@@ -74,7 +74,7 @@ You need to take the following steps to make it work:
 Make sure the table definition for your aggregate has an `Aggregate::VERSION_COLUMN` column, and that your `fromState()` and `state()` methods are aware of it. For example:
 
 ```php
-final class Order implement Aggregate, SpecifiesSchema
+final class Order implements Aggregate, SpecifiesSchema
 {
     /**
      * @var int
@@ -83,7 +83,7 @@ final class Order implement Aggregate, SpecifiesSchema
     
     public function state(): array
     {
-        // N.B. It's important to increment te version manually every time state() gets called!
+        // N.B. It's important to increment the version manually every time state() gets called!
         $this->aggregateVersion++;
 
         return [
