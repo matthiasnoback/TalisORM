@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/matthiasnoback/TalisORM.svg?branch=master)](https://travis-ci.org/matthiasnoback/TalisORM)
+[![Build Status](https://travis-ci.org/matthiasnoback/TalisORM.svg?branch=master)](https://travis-ci.org/matthiasnoback/TalisORM) [![Code Coverage](https://scrutinizer-ci.com/g/matthiasnoback/TalisORM/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/matthiasnoback/TalisORM/?branch=master)
 
 # About TalisORM
 

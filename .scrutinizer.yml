@@ -1,0 +1,16 @@
+tools:
+    external_code_coverage: true
+
+filter:
+    paths:
+        - "src/*"
+
+checks:
+    php: true
+
+build:
+    nodes:
+        analysis:
+            tests:
+                override:
+                    - php-scrutinizer-run
