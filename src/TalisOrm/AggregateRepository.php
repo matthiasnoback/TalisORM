@@ -31,7 +31,7 @@ final class AggregateRepository
 
     /**
      * @param Aggregate $aggregate
-     * @throws ConcurrentUpdate (only when you use optimistic concurrency locking)
+     * @throws ConcurrentUpdateOccurred (only when you use optimistic concurrency locking)
      * @return void
      */
     public function save(Aggregate $aggregate)
@@ -138,7 +138,7 @@ final class AggregateRepository
                     $entity->identifier()
                 )->fetchColumn();
                 if ($aggregateVersionInDb >= $aggregateVersion) {
-                    throw ConcurrentUpdate::ofEntity($entity);
+                    throw ConcurrentUpdateOccurred::ofEntity($entity);
                 }
             }
             $this->connection->update(

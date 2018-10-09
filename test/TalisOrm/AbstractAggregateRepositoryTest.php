@@ -127,7 +127,11 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         $aggregate1->update(self::createDateTimeImmutable('2018-11-05'));
         $this->repository->save($aggregate1);
 
-        $this->expectException(ConcurrentUpdate::class);
+        $this->expectException(ConcurrentUpdateOccurred::class);
+        $this->expectExceptionMessage(
+            'A concurrent update occurred of an entity of type "TalisOrm\AggregateRepositoryTest\Order" with identifier: order_id = \'91338a57-5c9a-40e8-b5e8-803e8175c7d7\', company_id = 5'
+        );
+
         /*
          * Now we save the other aggregate. This results in a concurrency issue, since it has the same version as the
          * first aggregate which we just saved to the database.
@@ -154,7 +158,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         $aggregate1->update(self::createDateTimeImmutable('2018-11-05'));
         $this->repository->save($aggregate1);
 
-        $this->expectException(ConcurrentUpdate::class);
+        $this->expectException(ConcurrentUpdateOccurred::class);
         /*
          * Now we save the other aggregate. This results in a concurrency issue, since it has a lower version than the
          * first aggregate which we just saved to the database.
