@@ -120,7 +120,7 @@ final class Order implements Aggregate, SpecifiesSchema
 The above setup will protect your aggregate against concurrent updates between retrieving the aggregate from the database and saving it again. However, you may want to warn a user who's working with the aggregate's data in the user interface that once they store the object, someone else has modified it. To do this, you need to remember the version of the aggregate the user is looking at in the user's session. An outline of this solution:
 
 ```php
-final class Order implement Aggregate, SpecifiesSchema
+final class Order implements Aggregate, SpecifiesSchema
 {
     // ...
 
