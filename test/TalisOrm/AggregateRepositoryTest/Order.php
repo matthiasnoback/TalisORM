@@ -157,7 +157,7 @@ final class Order implements Aggregate, SpecifiesSchema
         $order = new self();
 
         $order->orderId = new OrderId($aggregateState['order_id'], (int)$aggregateState['company_id']);
-        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $aggregateState['order_date']);
+        $dateTimeImmutable = DateTimeImmutable::createFromFormat('!Y-m-d', $aggregateState['order_date']);
 
         if (!$dateTimeImmutable instanceof DateTimeImmutable) {
             throw new \RuntimeException('Invalid date string from database');

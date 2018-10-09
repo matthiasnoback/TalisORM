@@ -12,15 +12,11 @@ services:
         image: talisorm/php56
         volumes:
             - ./:/app:cached
+            - ~/.composer:/tmp
 
     php72:
         build: docker/php72/
         image: talisorm/php72
-        volumes:
-            - ./:/app:cached
-
-    composer:
-        image: composer:latest
         volumes:
             - ./:/app:cached
 

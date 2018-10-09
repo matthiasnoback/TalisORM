@@ -8,3 +8,7 @@ install:
 
 script:
   - ./run_tests.sh
+
+after_success:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - docker-compose run php72 php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml

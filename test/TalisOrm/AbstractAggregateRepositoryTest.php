@@ -365,7 +365,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         Assert::string($date);
 
-        $dateTimeImmutable = DateTimeImmutable::createFromFormat('Y-m-d', $date);
+        $dateTimeImmutable = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
         Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);
 
         return $dateTimeImmutable;
