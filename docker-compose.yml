@@ -19,6 +19,9 @@ services:
         image: talisorm/php72
         volumes:
             - ./:/app:cached
+        environment:
+            - BLACKFIRE_CLIENT_ID
+            - BLACKFIRE_CLIENT_TOKEN
 
     phpstan:
         build: docker/phpstan/
