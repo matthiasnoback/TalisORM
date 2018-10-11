@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
+use TalisOrm\DateTimeUtil;
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
 use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
@@ -157,7 +158,7 @@ final class Order implements Aggregate, SpecifiesSchema
         $order = new self();
 
         $order->orderId = new OrderId($aggregateState['order_id'], (int)$aggregateState['company_id']);
-        $dateTimeImmutable = DateTimeImmutable::createFromFormat('!Y-m-d', $aggregateState['order_date']);
+        $dateTimeImmutable = DateTimeUtil::createDateTimeImmutable($aggregateState['order_date']);
 
         if (!$dateTimeImmutable instanceof DateTimeImmutable) {
             throw new \RuntimeException('Invalid date string from database');
