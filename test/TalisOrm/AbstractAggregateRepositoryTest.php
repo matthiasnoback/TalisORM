@@ -19,7 +19,6 @@ use TalisOrm\AggregateRepositoryTest\OrderUpdated;
 use TalisOrm\AggregateRepositoryTest\ProductId;
 use TalisOrm\AggregateRepositoryTest\Quantity;
 use TalisOrm\Schema\AggregateSchemaProvider;
-use Webmozart\Assert\Assert;
 
 abstract class AbstractAggregateRepositoryTest extends TestCase
 {
@@ -72,7 +71,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $this->repository->save($aggregate);
 
@@ -89,11 +88,11 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $this->repository->save($aggregate);
 
-        $aggregate->update(self::createDateTimeImmutable('2018-11-05'));
+        $aggregate->update(DateTimeUtil::createDateTimeImmutable('2018-11-05'));
         $this->repository->save($aggregate);
 
         $fromDatabase = $this->repository->getById($aggregate->orderId());
@@ -115,7 +114,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $this->repository->save($aggregate);
 
@@ -124,7 +123,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         $aggregate2 = $this->repository->getById($aggregate->orderId());
 
         // we update the first aggregate
-        $aggregate1->update(self::createDateTimeImmutable('2018-11-05'));
+        $aggregate1->update(DateTimeUtil::createDateTimeImmutable('2018-11-05'));
         $this->repository->save($aggregate1);
 
         $this->expectException(ConcurrentUpdateOccurred::class);
@@ -146,7 +145,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $this->repository->save($aggregate);
 
@@ -155,7 +154,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         $aggregate2 = $this->repository->getById($aggregate->orderId());
 
         // we update the first aggregate
-        $aggregate1->update(self::createDateTimeImmutable('2018-11-05'));
+        $aggregate1->update(DateTimeUtil::createDateTimeImmutable('2018-11-05'));
         $this->repository->save($aggregate1);
 
         $this->expectException(ConcurrentUpdateOccurred::class);
@@ -174,7 +173,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -202,7 +201,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -236,7 +235,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -278,7 +277,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -316,7 +315,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -338,12 +337,12 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate1 = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            self::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
         );
         $this->repository->save($aggregate1);
         $aggregate2 = Order::create(
             new OrderId('c8ee1ee6-7757-4661-81fb-5b327badbff8', 5),
-            self::createDateTimeImmutable('2018-10-04')
+            DateTimeUtil::createDateTimeImmutable('2018-10-04')
         );
         $this->repository->save($aggregate2);
 
@@ -355,19 +354,5 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         // aggregate1 can't be found
         $this->expectException(AggregateNotFoundException::class);
         $this->repository->getById($aggregate1->orderId());
-    }
-
-    /**
-     * @param string $date
-     * @return DateTimeImmutable
-     */
-    private static function createDateTimeImmutable($date)
-    {
-        Assert::string($date);
-
-        $dateTimeImmutable = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
-        Assert::isInstanceOf($dateTimeImmutable, DateTimeImmutable::class);
-
-        return $dateTimeImmutable;
     }
 }
