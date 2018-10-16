@@ -13,6 +13,8 @@ services:
         volumes:
             - ./:/app:cached
             - ~/.composer:/tmp
+        environment:
+            COMPOSER_HOME: /tmp
 
     php72:
         build: docker/php72/
