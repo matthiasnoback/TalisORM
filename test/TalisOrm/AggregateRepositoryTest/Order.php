@@ -222,7 +222,7 @@ final class Order implements Aggregate, SpecifiesSchema
         $table->addColumn('company_id', 'integer');
         $table->addColumn('order_date', 'date');
         $table->addColumn(Aggregate::VERSION_COLUMN, 'integer');
-        $table->addUniqueIndex(['order_id', 'company_id']);
+        $table->setPrimaryKey(['order_id', 'company_id']);
 
         Line::specifySchema($schema);
     }

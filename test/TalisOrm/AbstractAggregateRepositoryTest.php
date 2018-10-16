@@ -2,7 +2,6 @@
 
 namespace TalisOrm;
 
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use PHPUnit\Framework\TestCase;

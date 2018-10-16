@@ -156,6 +156,6 @@ final class Line implements ChildEntity, SpecifiesSchema
         $table->addColumn('line_number', 'integer');
         $table->addColumn('product_id', 'string');
         $table->addColumn('quantity', 'integer');
-        $table->addUniqueIndex(['order_id', 'company_id', 'line_number']);
+        $table->setPrimaryKey(['order_id', 'company_id', 'line_number']);
     }
 }
