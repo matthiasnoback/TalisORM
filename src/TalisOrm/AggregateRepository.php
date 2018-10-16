@@ -73,26 +73,9 @@ final class AggregateRepository
             ));
         }
 
-        $aggregateStates = $this->fetchAll($aggregateClass::tableName(), $aggregateClass::identifierForQuery($aggregateId));
-        if (\count($aggregateStates) === 0) {
-            throw new AggregateNotFoundException(sprintf(
-                'Could not find aggregate of type "%s" with id "%s"',
-                $aggregateClass,
-                $aggregateId
-            ));
-        }
-        $aggregateState = reset($aggregateStates);
+        $aggregateState = $this->getAggregateState($aggregateClass, $aggregateId);
 
-        $childEntityStatesByType = [];
-
-        foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
-            $childEntityStatesByType = $this->fetchAll(
-                $childEntityType::tableName(),
-                $childEntityType::identifierForQuery($aggregateId)
-            );
-
-            $childEntityStatesByType[$childEntityType] = $childEntityStatesByType;
-        }
+        $childEntityStatesByType = $this->getChildEntityStatesByType($aggregateClass, $aggregateId);
 
         $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
 
@@ -104,6 +87,54 @@ final class AggregateRepository
         }
 
         return $aggregate;
+    }
+
+    /**
+     * @param string $aggregateClass
+     * @param AggregateId $aggregateId
+     * @return array
+     */
+    private function getAggregateState($aggregateClass, AggregateId $aggregateId)
+    {
+        $aggregateStates = $this->fetchAll(
+            $aggregateClass::tableName(),
+            $aggregateClass::identifierForQuery($aggregateId)
+        );
+
+        if (\count($aggregateStates) === 0) {
+            throw new AggregateNotFoundException(sprintf(
+                'Could not find aggregate of type "%s" with id "%s"',
+                $aggregateClass,
+                $aggregateId
+            ));
+        }
+
+        $aggregateState = reset($aggregateStates);
+
+        Assert::isArray($aggregateState);
+
+        return $aggregateState;
+    }
+
+    /**
+     * @param string $aggregateClass
+     * @param AggregateId $aggregateId
+     * @return array[]
+     */
+    private function getChildEntityStatesByType($aggregateClass, AggregateId $aggregateId)
+    {
+        $childEntityStatesByType = [];
+
+        foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
+            $childEntityStatesByType = $this->fetchAll(
+                $childEntityType::tableName(),
+                $childEntityType::identifierForQuery($aggregateId)
+            );
+
+            $childEntityStatesByType[$childEntityType] = $childEntityStatesByType;
+        }
+
+        return $childEntityStatesByType;
     }
 
     public function delete(Aggregate $aggregate)
