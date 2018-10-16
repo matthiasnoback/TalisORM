@@ -6,9 +6,12 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use PHPUnit\Framework\TestCase;
+use TalisOrm\AggregateRepositoryTest\AggregateIdDummy;
 use TalisOrm\AggregateRepositoryTest\EventDispatcherSpy;
 use TalisOrm\AggregateRepositoryTest\FromStateDoesNotReturnAnAggregate;
 use TalisOrm\AggregateRepositoryTest\FromStateDoesNotReturnAnAggregateId;
+use TalisOrm\AggregateRepositoryTest\NotAnAggregateClass;
+use TalisOrm\AggregateRepositoryTest\DummyAggregateId;
 use TalisOrm\Schema\AggregateSchemaProvider;
 
 final class ExceptionalSituationsTest extends TestCase
@@ -62,5 +65,16 @@ final class ExceptionalSituationsTest extends TestCase
             FromStateDoesNotReturnAnAggregate::class,
             new FromStateDoesNotReturnAnAggregateId(1)
         );
+    }
+
+    /**
+     * @test
+     */
+    public function the_aggregate_repository_requires_an_actual_aggregate_class_to_be_provided()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(Aggregate::class);
+
+        $this->repository->getById(NotAnAggregateClass::class, new AggregateIdDummy());
     }
 }
