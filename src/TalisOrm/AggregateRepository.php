@@ -177,6 +177,8 @@ final class AggregateRepository
                     );
                 }
             }
+
+            $this->forgetAggregate($aggregate);
         });
     }
 
@@ -294,5 +296,13 @@ final class AggregateRepository
                 $this->rememberEntity($childEntity);
             }
         }
+    }
+
+    private function forgetAggregate(Aggregate $aggregate)
+    {
+        unset(
+            $this->knownEntities[spl_object_hash($aggregate)],
+            $this->knownChildEntities[spl_object_hash($aggregate)]
+        );
     }
 }

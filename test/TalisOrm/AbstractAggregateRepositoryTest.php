@@ -362,6 +362,26 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function saving_a_deleted_aggregate_will_recreate_it()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+        );
+        $this->repository->save($aggregate);
+
+        $this->repository->delete($aggregate);
+
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
+
+    /**
+     * @test
+     */
     public function it_does_not_delete_all_aggregates_of_the_same_type()
     {
         $aggregate1 = Order::create(
