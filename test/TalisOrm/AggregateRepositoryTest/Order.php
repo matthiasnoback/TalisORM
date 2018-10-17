@@ -6,7 +6,6 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
-use TalisOrm\ChildEntity;
 use TalisOrm\DateTimeUtil;
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
 use TalisOrm\Schema\SpecifiesSchema;
