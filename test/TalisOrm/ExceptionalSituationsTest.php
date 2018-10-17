@@ -4,6 +4,7 @@ namespace TalisOrm;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use PHPUnit\Framework\TestCase;
 use TalisOrm\AggregateRepositoryTest\AggregateIdDummy;
@@ -11,7 +12,8 @@ use TalisOrm\AggregateRepositoryTest\EventDispatcherSpy;
 use TalisOrm\AggregateRepositoryTest\FromStateDoesNotReturnAnAggregate;
 use TalisOrm\AggregateRepositoryTest\FromStateDoesNotReturnAnAggregateId;
 use TalisOrm\AggregateRepositoryTest\NotAnAggregateClass;
-use TalisOrm\AggregateRepositoryTest\DummyAggregateId;
+use TalisOrm\AggregateRepositoryTest\SimpleAggregate\SimpleAggregate;
+use TalisOrm\AggregateRepositoryTest\SimpleAggregate\SimpleAggregateId;
 use TalisOrm\Schema\AggregateSchemaProvider;
 
 final class ExceptionalSituationsTest extends TestCase
@@ -34,6 +36,7 @@ final class ExceptionalSituationsTest extends TestCase
 
         $schemaProvider = new AggregateSchemaProvider($this->connection, [
             FromStateDoesNotReturnAnAggregate::class,
+            SimpleAggregate::class
         ]);
         $synchronizer = new SingleDatabaseSynchronizer($this->connection);
         $synchronizer->dropAllSchema();
@@ -76,5 +79,20 @@ final class ExceptionalSituationsTest extends TestCase
         $this->expectExceptionMessage(Aggregate::class);
 
         $this->repository->getById(NotAnAggregateClass::class, new AggregateIdDummy());
+    }
+
+    /**
+     * @test
+     */
+    public function it_prevents_updating_the_database_when_the_aggregate_is_new()
+    {
+        $aggregate = new SimpleAggregate(new SimpleAggregateId(1));
+        $this->repository->save($aggregate);
+
+        $aggregateWithSameId = new SimpleAggregate(new SimpleAggregateId(1));
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->repository->save($aggregateWithSameId);
     }
 }

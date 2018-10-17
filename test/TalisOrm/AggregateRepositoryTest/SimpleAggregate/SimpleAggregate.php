@@ -1,25 +1,24 @@
 <?php
 
-namespace TalisOrm\AggregateRepositoryTest;
+namespace TalisOrm\AggregateRepositoryTest\SimpleAggregate;
 
 use Doctrine\DBAL\Schema\Schema;
-use stdClass;
 use TalisOrm\Aggregate;
 use TalisOrm\AggregateId;
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
 use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
 
-final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSchema
+final class SimpleAggregate implements Aggregate, SpecifiesSchema
 {
     use EventRecordingCapabilities;
 
     /**
-     * @var FromStateDoesNotReturnAnAggregateId
+     * @var SimpleAggregateId
      */
     private $aggregateId;
 
-    public function __construct(FromStateDoesNotReturnAnAggregateId $aggregateId)
+    public function __construct(SimpleAggregateId $aggregateId)
     {
         $this->aggregateId = $aggregateId;
     }
@@ -43,13 +42,12 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
 
     public static function fromState(array $aggregateState, array $childEntitiesByType)
     {
-        // Note: not an instance of this aggregate class
-        return new stdClass();
+        return new self(new SimpleAggregateId($aggregateState['aggregate_id']));
     }
 
     public static function tableName()
     {
-        return 'from_state_does_not_return_an_aggregate';
+        return 'simple_aggregate';
     }
 
     public function identifier()
@@ -61,8 +59,8 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
 
     public static function identifierForQuery(AggregateId $aggregateId)
     {
-        Assert::isInstanceOf($aggregateId, FromStateDoesNotReturnAnAggregateId::class);
-        /** @var FromStateDoesNotReturnAnAggregateId $aggregateId */
+        Assert::isInstanceOf($aggregateId, SimpleAggregateId::class);
+        /** @var SimpleAggregateId $aggregateId */
 
         return [
             'aggregate_id' => $aggregateId->id()
@@ -76,8 +74,8 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
 
     public static function specifySchema(Schema $schema)
     {
-        $table = $schema->createTable('from_state_does_not_return_an_aggregate');
+        $table = $schema->createTable('simple_aggregate');
         $table->addColumn('aggregate_id', 'integer');
-        $table->addUniqueIndex(['aggregate_id']);
+        $table->setPrimaryKey(['aggregate_id']);
     }
 }

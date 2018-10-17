@@ -272,6 +272,36 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function it_updates_child_entities_after_the_aggregate_was_refreshed()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $this->repository->save($aggregate);
+
+        $aggregate = $this->repository->getById($aggregate->orderId());
+
+        $aggregate->updateLine(
+            new LineNumber(2),
+            new ProductId('ec739f60-0d09-47f5-ae42-e2157ba709e2', 5),
+            new Quantity(7)
+        );
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
+
+        self::assertEquals($aggregate, $fromDatabase);
+    }
+
+    /**
+     * @test
+     */
     public function it_deletes_child_entities_that_have_been_removed_from_the_aggregate()
     {
         $aggregate = Order::create(

@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use function is_a;
 use LogicException;
 use PDO;
+use function spl_object_hash;
 use TalisOrm\DomainEvents\EventDispatcher;
 use Webmozart\Assert\Assert;
 
@@ -22,6 +23,11 @@ final class AggregateRepository
      * @var EventDispatcher
      */
     private $eventDispatcher;
+
+    /**
+     * @var array
+     */
+    private $knownEntities = [];
 
     public function __construct(Connection $connection, EventDispatcher $eventDispatcher)
     {
@@ -75,7 +81,7 @@ final class AggregateRepository
 
         $aggregateState = $this->getAggregateState($aggregateClass, $aggregateId);
 
-        $childEntityStatesByType = $this->getChildEntityStatesByType($aggregateClass, $aggregateId);
+        $childEntityStatesByType = $this->getChildEntitiesByType($aggregateClass, $aggregateId);
 
         $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
 
@@ -85,6 +91,8 @@ final class AggregateRepository
                 $aggregateClass
             ));
         }
+
+        $this->rememberEntity($aggregate);
 
         return $aggregate;
     }
@@ -121,20 +129,29 @@ final class AggregateRepository
      * @param AggregateId $aggregateId
      * @return array[]
      */
-    private function getChildEntityStatesByType($aggregateClass, AggregateId $aggregateId)
+    private function getChildEntitiesByType($aggregateClass, AggregateId $aggregateId)
     {
-        $childEntityStatesByType = [];
+        $childEntitiesByType = [];
 
         foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
-            $childEntityStatesByType = $this->fetchAll(
+            $childEntityStates = $this->fetchAll(
                 $childEntityType::tableName(),
                 $childEntityType::identifierForQuery($aggregateId)
             );
 
-            $childEntityStatesByType[$childEntityType] = $childEntityStatesByType;
+            $childEntitiesByType[$childEntityType] = array_map(
+                function (array $childEntityState) use ($childEntityType) {
+                    $childEntity = $childEntityType::fromState($childEntityState);
+
+                    $this->rememberEntity($childEntity);
+
+                    return $childEntity;
+                },
+                $childEntityStates
+            );
         }
 
-        return $childEntityStatesByType;
+        return $childEntitiesByType;
     }
 
     public function delete(Aggregate $aggregate)
@@ -159,7 +176,7 @@ final class AggregateRepository
 
     private function insertOrUpdate(Entity $entity)
     {
-        if ($this->exists($entity::tableName(), $entity->identifier())) {
+        if ($this->exists($entity)) {
             $state = $entity->state();
             if (array_key_exists(Aggregate::VERSION_COLUMN, $state)) {
                 $aggregateVersion = $state[Aggregate::VERSION_COLUMN];
@@ -182,21 +199,8 @@ final class AggregateRepository
                 $this->connection->quoteIdentifier($entity::tableName()),
                 $entity->state()
             );
+            $this->rememberEntity($entity);
         }
-    }
-
-    /**
-     * @param string $tableName
-     * @param array $identifier
-     * @return bool
-     */
-    private function exists($tableName, array $identifier)
-    {
-        Assert::string($tableName);
-
-        $count = $this->select('COUNT(*)', $tableName, $identifier)->fetchColumn();
-
-        return (int)$count > 0;
     }
 
     /**
@@ -236,5 +240,19 @@ final class AggregateRepository
             . ' WHERE ' . implode(' AND ', $conditions);
 
         return $this->connection->executeQuery($sql, $values);
+    }
+
+    private function rememberEntity(Entity $entity)
+    {
+        $this->knownEntities[spl_object_hash($entity)] = true;
+    }
+
+    /**
+     * @param Entity $entity
+     * @return bool
+     */
+    private function exists(Entity $entity)
+    {
+        return isset($this->knownEntities[spl_object_hash($entity)]);
     }
 }

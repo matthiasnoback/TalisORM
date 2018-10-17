@@ -153,7 +153,7 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array $aggregateState, array $childEntityStatesByType)
+    public static function fromState(array $aggregateState, array $childEntitiesByType)
     {
         $order = new self();
 
@@ -165,12 +165,7 @@ final class Order implements Aggregate, SpecifiesSchema
         }
         $order->orderDate = $dateTimeImmutable;
 
-        $order->lines = [];
-        foreach ($childEntityStatesByType[Line::class] as $lineState) {
-            $entity = Line::fromState($lineState);
-            Assert::isInstanceOf($entity, Line::class);
-            $order->lines[] = $entity;
-        }
+        $order->lines = $childEntitiesByType[Line::class];
 
         $order->aggregateVersion = (int)$aggregateState[Aggregate::VERSION_COLUMN];
 
