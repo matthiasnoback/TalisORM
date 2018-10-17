@@ -58,13 +58,6 @@ interface Aggregate extends Entity
     public static function fromState(array $aggregateState, array $childEntitiesByType);
 
     /**
-     * Return any deleted child entities.
-     *
-     * @return ChildEntity[]
-     */
-    public function deletedChildEntities();
-
-    /**
      * Return domain events that have been recorded internally, and immediately forget about them. That is: a second
      * call to this method would return an empty array.
      *

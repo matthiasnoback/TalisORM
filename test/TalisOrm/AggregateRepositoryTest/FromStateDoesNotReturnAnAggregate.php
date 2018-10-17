@@ -69,11 +69,6 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
         ];
     }
 
-    public function deletedChildEntities()
-    {
-        return [];
-    }
-
     public static function specifySchema(Schema $schema)
     {
         $table = $schema->createTable('from_state_does_not_return_an_aggregate');

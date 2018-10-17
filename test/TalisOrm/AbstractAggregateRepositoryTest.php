@@ -288,7 +288,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         $aggregate = $this->repository->getById($aggregate->orderId());
 
         $aggregate->updateLine(
-            new LineNumber(2),
+            new LineNumber(1),
             new ProductId('ec739f60-0d09-47f5-ae42-e2157ba709e2', 5),
             new Quantity(7)
         );

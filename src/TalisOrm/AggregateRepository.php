@@ -2,6 +2,7 @@
 
 namespace TalisOrm;
 
+use function array_diff;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
 use InvalidArgumentException;
@@ -25,9 +26,14 @@ final class AggregateRepository
     private $eventDispatcher;
 
     /**
-     * @var array
+     * @var Entity[]
      */
     private $knownEntities = [];
+
+    /**
+     * @var array
+     */
+    private $knownChildEntities = [];
 
     public function __construct(Connection $connection, EventDispatcher $eventDispatcher)
     {
@@ -44,19 +50,22 @@ final class AggregateRepository
     {
         $this->connection->transactional(function () use ($aggregate) {
             $this->insertOrUpdate($aggregate);
+            $this->rememberEntity($aggregate);
 
-            foreach ($aggregate->deletedChildEntities() as $childEntity) {
+            foreach ($this->deletedChildEntities($aggregate) as $childEntity) {
                 $this->connection->delete(
                     $this->connection->quoteIdentifier($childEntity::tableName()),
                     $childEntity->identifier()
                 );
             }
 
-            foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
+            $childEntitiesByType = $aggregate->childEntitiesByType();
+            foreach ($childEntitiesByType as $type => $childEntities) {
                 foreach ($childEntities as $childEntity) {
                     $this->insertOrUpdate($childEntity);
                 }
             }
+            $this->rememberChildEntities($aggregate, $childEntitiesByType);
         });
 
         $this->eventDispatcher->dispatch($aggregate->releaseEvents());
@@ -81,9 +90,9 @@ final class AggregateRepository
 
         $aggregateState = $this->getAggregateState($aggregateClass, $aggregateId);
 
-        $childEntityStatesByType = $this->getChildEntitiesByType($aggregateClass, $aggregateId);
+        $childEntitiesByType = $this->getChildEntitiesByType($aggregateClass, $aggregateId);
 
-        $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
+        $aggregate = $aggregateClass::fromState($aggregateState, $childEntitiesByType);
 
         if (!$aggregate instanceof $aggregateClass || !$aggregate instanceof Aggregate) {
             throw new LogicException(sprintf(
@@ -93,6 +102,7 @@ final class AggregateRepository
         }
 
         $this->rememberEntity($aggregate);
+        $this->rememberChildEntities($aggregate, $childEntitiesByType);
 
         return $aggregate;
     }
@@ -141,11 +151,7 @@ final class AggregateRepository
 
             $childEntitiesByType[$childEntityType] = array_map(
                 function (array $childEntityState) use ($childEntityType) {
-                    $childEntity = $childEntityType::fromState($childEntityState);
-
-                    $this->rememberEntity($childEntity);
-
-                    return $childEntity;
+                    return $childEntityType::fromState($childEntityState);
                 },
                 $childEntityStates
             );
@@ -199,7 +205,6 @@ final class AggregateRepository
                 $this->connection->quoteIdentifier($entity::tableName()),
                 $entity->state()
             );
-            $this->rememberEntity($entity);
         }
     }
 
@@ -244,7 +249,7 @@ final class AggregateRepository
 
     private function rememberEntity(Entity $entity)
     {
-        $this->knownEntities[spl_object_hash($entity)] = true;
+        $this->knownEntities[spl_object_hash($entity)] = $entity;
     }
 
     /**
@@ -254,5 +259,40 @@ final class AggregateRepository
     private function exists(Entity $entity)
     {
         return isset($this->knownEntities[spl_object_hash($entity)]);
+    }
+
+    /**
+     * @param Aggregate $aggregate
+     * @return Entity[]
+     */
+    private function deletedChildEntities(Aggregate $aggregate)
+    {
+        $deletedChildEntities = [];
+
+        foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
+            $childEntityHashes = array_map(function (ChildEntity $childEntity) {
+                return spl_object_hash($childEntity);
+            }, $childEntities);
+            $knownChildEntityHashes = array_keys(isset($this->knownChildEntities[spl_object_hash($aggregate)][$type]) ? $this->knownChildEntities[spl_object_hash($aggregate)][$type] : []);
+
+            $deletedChildEntityHashes = array_diff($knownChildEntityHashes, $childEntityHashes);
+            foreach ($deletedChildEntityHashes as $hash) {
+                $deletedChildEntities[] = $this->knownEntities[$hash];
+            }
+        }
+
+        return $deletedChildEntities;
+    }
+
+    private function rememberChildEntities(Aggregate $aggregate, array $childEntitiesByType)
+    {
+        $this->knownChildEntities[spl_object_hash($aggregate)] = [];
+
+        foreach ($childEntitiesByType as $type => $childEntities) {
+            foreach ($childEntities as $childEntity) {
+                $this->knownChildEntities[spl_object_hash($aggregate)][$type][spl_object_hash($childEntity)] = $childEntity;
+                $this->rememberEntity($childEntity);
+            }
+        }
     }
 }

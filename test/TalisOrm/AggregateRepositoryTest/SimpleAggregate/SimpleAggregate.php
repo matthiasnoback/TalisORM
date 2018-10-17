@@ -67,11 +67,6 @@ final class SimpleAggregate implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public function deletedChildEntities()
-    {
-        return [];
-    }
-
     public static function specifySchema(Schema $schema)
     {
         $table = $schema->createTable('simple_aggregate');

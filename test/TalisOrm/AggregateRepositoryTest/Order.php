@@ -32,11 +32,6 @@ final class Order implements Aggregate, SpecifiesSchema
     private $lines = [];
 
     /**
-     * @var array
-     */
-    private $deletedChildEntities = [];
-
-    /**
      * @var int
      */
     private $aggregateVersion;
@@ -112,7 +107,6 @@ final class Order implements Aggregate, SpecifiesSchema
         foreach ($this->lines as $index => $line) {
             if ($line->lineNumber()->asInt() === $lineId->asInt()) {
                 unset($this->lines[$index]);
-                $this->deleteChildEntity($line);
             }
         }
 
@@ -194,20 +188,6 @@ final class Order implements Aggregate, SpecifiesSchema
             'order_id' => $aggregateId->orderId(),
             'company_id' => $aggregateId->companyId()
         ];
-    }
-
-    public function deletedChildEntities()
-    {
-        $deletedChildEntities = $this->deletedChildEntities;
-
-        $this->deletedChildEntities = [];
-
-        return $deletedChildEntities;
-    }
-
-    private function deleteChildEntity(ChildEntity $childEntity)
-    {
-        $this->deletedChildEntities[] = $childEntity;
     }
 
     public static function specifySchema(Schema $schema)
