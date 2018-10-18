@@ -75,9 +75,9 @@ final class AggregateRepository
 
         $aggregateState = $this->getAggregateState($aggregateClass, $aggregateId);
 
-        $childEntityStatesByType = $this->getChildEntityStatesByType($aggregateClass, $aggregateId);
+        $childEntitiesByType = $this->getChildEntitiesByType($aggregateClass, $aggregateId);
 
-        $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
+        $aggregate = $aggregateClass::fromState($aggregateState, $childEntitiesByType);
 
         if (!$aggregate instanceof $aggregateClass || !$aggregate instanceof Aggregate) {
             throw new LogicException(sprintf(
@@ -121,20 +121,25 @@ final class AggregateRepository
      * @param AggregateId $aggregateId
      * @return array[]
      */
-    private function getChildEntityStatesByType($aggregateClass, AggregateId $aggregateId)
+    private function getChildEntitiesByType($aggregateClass, AggregateId $aggregateId)
     {
-        $childEntityStatesByType = [];
+        $childEntitiesByType = [];
 
         foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
-            $childEntityStatesByType = $this->fetchAll(
+            $childEntityStates = $this->fetchAll(
                 $childEntityType::tableName(),
                 $childEntityType::identifierForQuery($aggregateId)
             );
 
-            $childEntityStatesByType[$childEntityType] = $childEntityStatesByType;
+            $childEntitiesByType[$childEntityType] = array_map(
+                function (array $childEntityState) use ($childEntityType) {
+                    return $childEntityType::fromState($childEntityState);
+                },
+                $childEntityStates
+            );
         }
 
-        return $childEntityStatesByType;
+        return $childEntitiesByType;
     }
 
     public function delete(Aggregate $aggregate)
