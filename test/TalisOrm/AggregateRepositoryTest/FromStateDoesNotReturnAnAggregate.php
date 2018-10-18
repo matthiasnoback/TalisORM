@@ -80,4 +80,9 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
         $table->addColumn('aggregate_id', 'integer');
         $table->addUniqueIndex(['aggregate_id']);
     }
+
+    public function isNew()
+    {
+        return true;
+    }
 }

@@ -159,7 +159,12 @@ final class AggregateRepository
 
     private function insertOrUpdate(Entity $entity)
     {
-        if ($this->exists($entity::tableName(), $entity->identifier())) {
+        if ($entity->isNew()) {
+            $this->connection->insert(
+                $this->connection->quoteIdentifier($entity::tableName()),
+                $entity->state()
+            );
+        } else {
             $state = $entity->state();
             if (array_key_exists(Aggregate::VERSION_COLUMN, $state)) {
                 $aggregateVersion = $state[Aggregate::VERSION_COLUMN];
@@ -177,26 +182,7 @@ final class AggregateRepository
                 $state,
                 $entity->identifier()
             );
-        } else {
-            $this->connection->insert(
-                $this->connection->quoteIdentifier($entity::tableName()),
-                $entity->state()
-            );
         }
-    }
-
-    /**
-     * @param string $tableName
-     * @param array $identifier
-     * @return bool
-     */
-    private function exists($tableName, array $identifier)
-    {
-        Assert::string($tableName);
-
-        $count = $this->select('COUNT(*)', $tableName, $identifier)->fetchColumn();
-
-        return (int)$count > 0;
     }
 
     /**

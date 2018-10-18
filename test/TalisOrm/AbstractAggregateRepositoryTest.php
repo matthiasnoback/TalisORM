@@ -3,6 +3,7 @@
 namespace TalisOrm;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use PHPUnit\Framework\TestCase;
 use TalisOrm\AggregateRepositoryTest\EventDispatcherSpy;
@@ -104,6 +105,27 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
             ],
             $this->eventDispatcher->dispatchedEvents()
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_triggers_a_unique_constraint_exception_if_an_id_is_reused_for_a_new_aggregate()
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+        );
+        $this->repository->save($aggregate);
+
+        $aggregateWithSameId = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeUtil::createDateTimeImmutable('2018-10-04')
+        );
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        $this->repository->save($aggregateWithSameId);
     }
 
     /**
