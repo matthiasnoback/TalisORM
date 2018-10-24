@@ -37,6 +37,11 @@ final class Order implements Aggregate, SpecifiesSchema
     private $deletedChildEntities = [];
 
     /**
+     * @var bool
+     */
+    private $isNew = true;
+
+    /**
      * @var int
      */
     private $aggregateVersion;
@@ -143,6 +148,7 @@ final class Order implements Aggregate, SpecifiesSchema
 
     public function state()
     {
+        $this->isNew = false;
         $this->aggregateVersion++;
 
         return [
@@ -153,9 +159,10 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array $aggregateState, array $childEntityStatesByType)
+    public static function fromState(array $aggregateState, array $childEntitiesByType)
     {
         $order = new self();
+        $order->isNew = false;
 
         $order->orderId = new OrderId($aggregateState['order_id'], (int)$aggregateState['company_id']);
         $dateTimeImmutable = DateTimeUtil::createDateTimeImmutable($aggregateState['order_date']);
@@ -165,12 +172,7 @@ final class Order implements Aggregate, SpecifiesSchema
         }
         $order->orderDate = $dateTimeImmutable;
 
-        $order->lines = [];
-        foreach ($childEntityStatesByType[Line::class] as $lineState) {
-            $entity = Line::fromState($lineState);
-            Assert::isInstanceOf($entity, Line::class);
-            $order->lines[] = $entity;
-        }
+        $order->lines = $childEntitiesByType[Line::class];
 
         $order->aggregateVersion = (int)$aggregateState[Aggregate::VERSION_COLUMN];
 
@@ -225,6 +227,11 @@ final class Order implements Aggregate, SpecifiesSchema
         $table->setPrimaryKey(['order_id', 'company_id']);
 
         Line::specifySchema($schema);
+    }
+
+    public function isNew()
+    {
+        return $this->isNew;
     }
 
     /**

@@ -54,4 +54,12 @@ interface Entity
      * @return array
      */
     public static function identifierForQuery(AggregateId $aggregateId);
+
+    /**
+     * Return a boolean indicating whether or not this entity is new, i.e. requires an INSERT statement to be used
+     * when saving it.
+     *
+     * @return bool
+     */
+    public function isNew();
 }

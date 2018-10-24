@@ -29,6 +29,11 @@ final class Line implements ChildEntity, SpecifiesSchema
      */
     private $quantity;
 
+    /**
+     * @var bool
+     */
+    private $isNew = true;
+
     private function __construct()
     {
     }
@@ -101,6 +106,8 @@ final class Line implements ChildEntity, SpecifiesSchema
 
     public function state()
     {
+        $this->isNew = false;
+
         return [
             'order_id' => $this->orderId->orderId(),
             'company_id' => $this->orderId->companyId(),
@@ -113,6 +120,7 @@ final class Line implements ChildEntity, SpecifiesSchema
     public static function fromState(array $state)
     {
         $line = new self();
+        $line->isNew = false;
 
         $line->orderId = new OrderId($state['order_id'], (int)$state['company_id']);
         $line->lineNumber = new LineNumber((int)$state['line_number']);
@@ -157,5 +165,10 @@ final class Line implements ChildEntity, SpecifiesSchema
         $table->addColumn('product_id', 'string');
         $table->addColumn('quantity', 'integer');
         $table->setPrimaryKey(['order_id', 'company_id', 'line_number']);
+    }
+
+    public function isNew()
+    {
+        return $this->isNew;
     }
 }

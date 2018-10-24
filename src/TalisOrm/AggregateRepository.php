@@ -75,9 +75,9 @@ final class AggregateRepository
 
         $aggregateState = $this->getAggregateState($aggregateClass, $aggregateId);
 
-        $childEntityStatesByType = $this->getChildEntityStatesByType($aggregateClass, $aggregateId);
+        $childEntitiesByType = $this->getChildEntitiesByType($aggregateClass, $aggregateId);
 
-        $aggregate = $aggregateClass::fromState($aggregateState, $childEntityStatesByType);
+        $aggregate = $aggregateClass::fromState($aggregateState, $childEntitiesByType);
 
         if (!$aggregate instanceof $aggregateClass || !$aggregate instanceof Aggregate) {
             throw new LogicException(sprintf(
@@ -121,20 +121,25 @@ final class AggregateRepository
      * @param AggregateId $aggregateId
      * @return array[]
      */
-    private function getChildEntityStatesByType($aggregateClass, AggregateId $aggregateId)
+    private function getChildEntitiesByType($aggregateClass, AggregateId $aggregateId)
     {
-        $childEntityStatesByType = [];
+        $childEntitiesByType = [];
 
         foreach ($aggregateClass::childEntityTypes() as $childEntityType) {
-            $childEntityStatesByType = $this->fetchAll(
+            $childEntityStates = $this->fetchAll(
                 $childEntityType::tableName(),
                 $childEntityType::identifierForQuery($aggregateId)
             );
 
-            $childEntityStatesByType[$childEntityType] = $childEntityStatesByType;
+            $childEntitiesByType[$childEntityType] = array_map(
+                function (array $childEntityState) use ($childEntityType) {
+                    return $childEntityType::fromState($childEntityState);
+                },
+                $childEntityStates
+            );
         }
 
-        return $childEntityStatesByType;
+        return $childEntitiesByType;
     }
 
     public function delete(Aggregate $aggregate)
@@ -159,7 +164,12 @@ final class AggregateRepository
 
     private function insertOrUpdate(Entity $entity)
     {
-        if ($this->exists($entity::tableName(), $entity->identifier())) {
+        if ($entity->isNew()) {
+            $this->connection->insert(
+                $this->connection->quoteIdentifier($entity::tableName()),
+                $entity->state()
+            );
+        } else {
             $state = $entity->state();
             if (array_key_exists(Aggregate::VERSION_COLUMN, $state)) {
                 $aggregateVersion = $state[Aggregate::VERSION_COLUMN];
@@ -177,26 +187,7 @@ final class AggregateRepository
                 $state,
                 $entity->identifier()
             );
-        } else {
-            $this->connection->insert(
-                $this->connection->quoteIdentifier($entity::tableName()),
-                $entity->state()
-            );
         }
-    }
-
-    /**
-     * @param string $tableName
-     * @param array $identifier
-     * @return bool
-     */
-    private function exists($tableName, array $identifier)
-    {
-        Assert::string($tableName);
-
-        $count = $this->select('COUNT(*)', $tableName, $identifier)->fetchColumn();
-
-        return (int)$count > 0;
     }
 
     /**

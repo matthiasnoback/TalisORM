@@ -38,7 +38,7 @@ interface Aggregate extends Entity
      * Recreate the root entity, based on the state that was retrieved from the database. This can be expected to be
      * equivalent to the state that was earlier returned by `Aggregate::getState()`. Sample implementation:
      *
-     * public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate
+     * public static function fromState(array $aggregateState, array $childEntitiesByType): Aggregate
      * {
      *     list($orderState, $lineStates) = $states;
      *
@@ -46,18 +46,16 @@ interface Aggregate extends Entity
      *     $order->orderId = new OrderId($aggregateState['order_id']);
      *     // ...
      *
-     *     $order->lines = [];
-     *     foreach ($childEntityStatesByType[Line::class] as $lineState) {
-     *         $line = Line::fromState($lineState);
-     *         $order->lines[] = $line;
-     *     }
+     *     $order->lines = $childEntitiesByType[Line::class];
+     *
+     *     return $order;
      * }
      *
      * @param array $aggregateState
-     * @param array $childEntityStatesByType
+     * @param array $childEntitiesByType
      * @return static
      */
-    public static function fromState(array $aggregateState, array $childEntityStatesByType);
+    public static function fromState(array $aggregateState, array $childEntitiesByType);
 
     /**
      * Return any deleted child entities.
