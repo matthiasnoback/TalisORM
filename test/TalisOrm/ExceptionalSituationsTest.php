@@ -32,7 +32,7 @@ final class ExceptionalSituationsTest extends TestCase
             'driver' => 'pdo_sqlite'
         ]);
 
-        $schemaProvider = new AggregateSchemaProvider($this->connection, [
+        $schemaProvider = new AggregateSchemaProvider([
             FromStateDoesNotReturnAnAggregate::class,
         ]);
         $synchronizer = new SingleDatabaseSynchronizer($this->connection);

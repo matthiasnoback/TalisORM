@@ -14,13 +14,10 @@ final class AggregateSchemaProviderTest extends TestCase
      */
     public function it_builds_up_a_schema_by_letting_the_aggregates_specify_their_own_tables()
     {
-        $schemaProvider = new AggregateSchemaProvider(
-            $this->createConnection(),
-            [
-                AggregateA::class,
-                AggregateB::class
-            ]
-        );
+        $schemaProvider = new AggregateSchemaProvider([
+            AggregateA::class,
+            AggregateB::class,
+        ]);
 
         $schema = $schemaProvider->createSchema();
 
@@ -35,24 +32,10 @@ final class AggregateSchemaProviderTest extends TestCase
     {
         $this->expectException(\LogicException::class);
 
-        $schemaProvider = new AggregateSchemaProvider(
-            $this->createConnection(),
-            [
-                self::class
-            ]
-        );
+        $schemaProvider = new AggregateSchemaProvider([
+            self::class,
+        ]);
 
         $schemaProvider->createSchema();
-    }
-
-    /**
-     * @return \Doctrine\DBAL\Connection
-     * @throws \Doctrine\DBAL\DBALException
-     */
-    private function createConnection()
-    {
-        return DriverManager::getConnection([
-            'driver' => 'pdo_sqlite'
-        ]);
     }
 }
