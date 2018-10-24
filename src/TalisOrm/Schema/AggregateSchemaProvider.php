@@ -9,18 +9,12 @@ use InvalidArgumentException;
 final class AggregateSchemaProvider
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var string[]
      */
     private $aggregateClasses;
 
-    public function __construct(Connection $connection, array $aggregateClasses)
+    public function __construct(array $aggregateClasses)
     {
-        $this->connection = $connection;
         $this->aggregateClasses = $aggregateClasses;
     }
 
@@ -29,7 +23,7 @@ final class AggregateSchemaProvider
      */
     public function createSchema()
     {
-        $schema = $this->connection->getSchemaManager()->createSchema();
+        $schema = new Schema();
 
         foreach ($this->aggregateClasses as $aggregateClass) {
             if (!is_a($aggregateClass, SpecifiesSchema::class, true)) {
