@@ -126,7 +126,7 @@ final class Order implements Aggregate, SpecifiesSchema
 
     public function setAggregateVersion(int $version)
     {
-        $this->aggregateVersion($version);
+        $this->aggregateVersion = $version;
     }
 
     public function aggregateVersion(): int
