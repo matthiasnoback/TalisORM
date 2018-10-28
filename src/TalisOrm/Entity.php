@@ -62,4 +62,11 @@ interface Entity
      * @return bool
      */
     public function isNew();
+
+    /**
+     * Will be called to mark an entity as "persisted". From this moment on, `isNew()` should return `false`.
+     *
+     * @return void
+     */
+    public function markAsPersisted();
 }
