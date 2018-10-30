@@ -148,7 +148,6 @@ final class Order implements Aggregate, SpecifiesSchema
 
     public function state()
     {
-        $this->isNew = false;
         $this->aggregateVersion++;
 
         return [
@@ -162,7 +161,6 @@ final class Order implements Aggregate, SpecifiesSchema
     public static function fromState(array $aggregateState, array $childEntitiesByType)
     {
         $order = new self();
-        $order->isNew = false;
 
         $order->orderId = new OrderId($aggregateState['order_id'], (int)$aggregateState['company_id']);
         $dateTimeImmutable = DateTimeUtil::createDateTimeImmutable($aggregateState['order_date']);
@@ -232,6 +230,11 @@ final class Order implements Aggregate, SpecifiesSchema
     public function isNew()
     {
         return $this->isNew;
+    }
+
+    public function markAsPersisted()
+    {
+        $this->isNew = false;
     }
 
     /**

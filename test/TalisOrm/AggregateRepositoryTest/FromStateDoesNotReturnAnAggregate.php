@@ -85,4 +85,9 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
     {
         return true;
     }
+
+    public function markAsPersisted()
+    {
+        // do nothing
+    }
 }

@@ -86,6 +86,8 @@ final class AggregateRepository
             ));
         }
 
+        $aggregate->markAsPersisted();
+
         return $aggregate;
     }
 
@@ -133,7 +135,11 @@ final class AggregateRepository
 
             $childEntitiesByType[$childEntityType] = array_map(
                 function (array $childEntityState) use ($childEntityType) {
-                    return $childEntityType::fromState($childEntityState);
+                    $childEntity = $childEntityType::fromState($childEntityState);
+
+                    $childEntity->markAsPersisted();
+
+                    return $childEntity;
                 },
                 $childEntityStates
             );
@@ -169,6 +175,7 @@ final class AggregateRepository
                 $this->connection->quoteIdentifier($entity::tableName()),
                 $entity->state()
             );
+            $entity->markAsPersisted();
         } else {
             $state = $entity->state();
             if (array_key_exists(Aggregate::VERSION_COLUMN, $state)) {
