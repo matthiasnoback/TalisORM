@@ -6,7 +6,7 @@ interface ChildEntity extends Entity
 {
     /**
      * Recreate the child entity, based on the state that was retrieved from the database. This can be expected to be
-     * equivalent to the state that was earlier returned by `Entity::getState()`. Sample implementation:
+     * equivalent to the state that was earlier returned by `Entity::state()`. Sample implementation:
      *
      *     $line = new Line();
      *
