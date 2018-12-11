@@ -46,7 +46,7 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $this->connection = $this->setUpConnection();
 
-        $schemaProvider = new AggregateSchemaProvider($this->connection, [
+        $schemaProvider = new AggregateSchemaProvider([
             Order::class
         ]);
         $synchronizer = new SingleDatabaseSynchronizer($this->connection);

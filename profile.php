@@ -19,7 +19,7 @@ $connection = DriverManager::getConnection([
     'driver' => 'pdo_sqlite'
 ]);
 
-$schemaProvider = new AggregateSchemaProvider($connection, [
+$schemaProvider = new AggregateSchemaProvider([
     Order::class
 ]);
 $synchronizer = new SingleDatabaseSynchronizer($connection);
