@@ -254,4 +254,12 @@ final class Order implements Aggregate, SpecifiesSchema
         Assert::integer($aggregateVersion);
         $this->aggregateVersion = $aggregateVersion;
     }
+
+    /**
+     * @return array&Line[]
+     */
+    public function lines(): array
+    {
+        return $this->lines;
+    }
 }

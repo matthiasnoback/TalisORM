@@ -35,7 +35,11 @@ final class AggregateRepository
     public function save(Aggregate $aggregate): void
     {
         $this->connection->transactional(function () use ($aggregate) {
+            /** @var Entity[] $persistedEntities */
+            $persistedEntities = [];
+
             $this->insertOrUpdate($aggregate);
+            $persistedEntities[] = $aggregate;
 
             foreach ($aggregate->deletedChildEntities() as $childEntity) {
                 $this->connection->delete(
@@ -47,7 +51,12 @@ final class AggregateRepository
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
                 foreach ($childEntities as $childEntity) {
                     $this->insertOrUpdate($childEntity);
+                    $persistedEntities[] = $childEntity;
                 }
+            }
+
+            foreach ($persistedEntities as $persistedObject) {
+                $persistedObject->markAsPersisted();
             }
         });
 
@@ -159,7 +168,6 @@ final class AggregateRepository
                 $this->connection->quoteIdentifier($entity::tableName()),
                 $entity->state()
             );
-            $entity->markAsPersisted();
         } else {
             $state = $entity->state();
             if (array_key_exists(Aggregate::VERSION_COLUMN, $state)) {

@@ -218,6 +218,39 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function entities_will_only_be_marked_as_persisted_if_all_queries_within_the_transaction_succeeded(): void
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        // Add another line with the same number (1) - this should cause an exception when saving
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        try {
+            $this->repository->save($aggregate);
+            $this->fail('Expected this to fail');
+        } catch (UniqueConstraintViolationException $exception) {
+            // this was expected
+        }
+
+        self::assertTrue($aggregate->isNew());
+        foreach ($aggregate->lines() as $line) {
+            self::assertTrue($line->isNew());
+        }
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_multiple_child_entities_in_the_database()
     {
         $aggregate = Order::create(
