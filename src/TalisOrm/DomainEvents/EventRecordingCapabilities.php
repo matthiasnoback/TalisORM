@@ -2,8 +2,6 @@
 
 namespace TalisOrm\DomainEvents;
 
-use Webmozart\Assert\Assert;
-
 /**
  * Use this trait to prevent code duplication in any aggregate that implements RecordsEvents.
  *
@@ -15,14 +13,9 @@ trait EventRecordingCapabilities
 
     /**
      * Use this method inside your aggregate to record new domain events.
-     *
-     * @param object $event
-     * @return void
      */
-    protected function recordThat($event)
+    protected function recordThat(object $event): void
     {
-        Assert::object($event);
-
         $this->events[] = $event;
     }
 
@@ -30,7 +23,7 @@ trait EventRecordingCapabilities
      * @see \TalisOrm\Aggregate::releaseEvents()
      * @return object[]
      */
-    public function releaseEvents()
+    public function releaseEvents(): array
     {
         $events = $this->events;
 

@@ -11,7 +11,6 @@ use TalisOrm\AggregateRepositoryTest\EventDispatcherSpy;
 use TalisOrm\AggregateRepositoryTest\FromStateDoesNotReturnAnAggregate;
 use TalisOrm\AggregateRepositoryTest\FromStateDoesNotReturnAnAggregateId;
 use TalisOrm\AggregateRepositoryTest\NotAnAggregateClass;
-use TalisOrm\AggregateRepositoryTest\DummyAggregateId;
 use TalisOrm\Schema\AggregateSchemaProvider;
 
 final class ExceptionalSituationsTest extends TestCase

@@ -6,11 +6,7 @@ use RuntimeException;
 
 final class ConcurrentUpdateOccurred extends RuntimeException
 {
-    /**
-     * @param Entity $entity
-     * @return ConcurrentUpdateOccurred
-     */
-    public static function ofEntity(Entity $entity)
+    public static function ofEntity(Entity $entity): ConcurrentUpdateOccurred
     {
         return new self(sprintf(
             'A concurrent update occurred of an entity of type "%s" with identifier: %s',
@@ -19,11 +15,7 @@ final class ConcurrentUpdateOccurred extends RuntimeException
         ));
     }
 
-    /**
-     * @param array $identifier
-     * @return string
-     */
-    private static function renderIdentifier(array $identifier)
+    private static function renderIdentifier(array $identifier): string
     {
         $parts = [];
 

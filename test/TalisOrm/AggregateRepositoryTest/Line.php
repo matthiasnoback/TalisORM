@@ -38,19 +38,12 @@ final class Line implements ChildEntity, SpecifiesSchema
     {
     }
 
-    /**
-     * @param OrderId $orderId
-     * @param LineNumber $lineNumber
-     * @param ProductId $productId
-     * @param Quantity $quantity
-     * @return Line
-     */
     public static function create(
         OrderId $orderId,
         LineNumber $lineNumber,
         ProductId $productId,
         Quantity $quantity
-    ) {
+    ): Line {
         $line = new self();
 
         $line->orderId = $orderId;
@@ -61,50 +54,33 @@ final class Line implements ChildEntity, SpecifiesSchema
         return $line;
     }
 
-    /**
-     * @param ProductId $productId
-     * @param Quantity $quantity
-     * @return void
-     */
-    public function update(ProductId $productId, Quantity $quantity)
+    public function update(ProductId $productId, Quantity $quantity): void
     {
         $this->productId = $productId;
         $this->quantity = $quantity;
     }
 
-    /**
-     * @return LineNumber
-     */
-    public function lineNumber()
+    public function lineNumber(): LineNumber
     {
         return $this->lineNumber;
     }
 
-    /**
-     * @return OrderId
-     */
-    public function orderId()
+    public function orderId(): OrderId
     {
         return $this->orderId;
     }
 
-    /**
-     * @return ProductId
-     */
-    public function productId()
+    public function productId(): ProductId
     {
         return $this->productId;
     }
 
-    /**
-     * @return Quantity
-     */
-    public function quantity()
+    public function quantity(): Quantity
     {
         return $this->quantity;
     }
 
-    public function state()
+    public function state(): array
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -115,7 +91,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array $state)
+    public static function fromState(array $state): Line
     {
         $line = new self();
 
@@ -127,12 +103,12 @@ final class Line implements ChildEntity, SpecifiesSchema
         return $line;
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'lines';
     }
 
-    public function identifier()
+    public function identifier(): array
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -141,7 +117,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function identifierForQuery(AggregateId $aggregateId)
+    public static function identifierForQuery(AggregateId $aggregateId): array
     {
         if (!$aggregateId instanceof OrderId) {
             throw new \InvalidArgumentException('Expected an instance of OrderId');
@@ -153,7 +129,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function specifySchema(Schema $schema)
+    public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('lines');
         $table->addColumn('order_id', 'string');
@@ -164,12 +140,12 @@ final class Line implements ChildEntity, SpecifiesSchema
         $table->setPrimaryKey(['order_id', 'company_id', 'line_number']);
     }
 
-    public function isNew()
+    public function isNew(): bool
     {
         return $this->isNew;
     }
 
-    public function markAsPersisted()
+    public function markAsPersisted(): void
     {
         $this->isNew = false;
     }

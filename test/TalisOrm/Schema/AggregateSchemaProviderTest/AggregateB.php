@@ -7,7 +7,7 @@ use TalisOrm\Schema\SpecifiesSchema;
 
 final class AggregateB implements SpecifiesSchema
 {
-    public static function specifySchema(Schema $schema)
+    public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('b');
         $table->addColumn('id', 'string');

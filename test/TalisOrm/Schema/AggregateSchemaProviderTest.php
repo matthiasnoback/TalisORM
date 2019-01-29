@@ -2,7 +2,6 @@
 
 namespace TalisOrm\Schema;
 
-use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use TalisOrm\Schema\AggregateSchemaProviderTest\AggregateA;
 use TalisOrm\Schema\AggregateSchemaProviderTest\AggregateB;

@@ -44,7 +44,7 @@ final class OrderId implements AggregateId
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('%s-%d', $this->orderId, $this->companyId);
     }

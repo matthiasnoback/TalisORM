@@ -30,11 +30,9 @@ final class AggregateRepository
     }
 
     /**
-     * @param Aggregate $aggregate
      * @throws ConcurrentUpdateOccurred (only when you use optimistic concurrency locking)
-     * @return void
      */
-    public function save(Aggregate $aggregate)
+    public function save(Aggregate $aggregate): void
     {
         $this->connection->transactional(function () use ($aggregate) {
             $this->insertOrUpdate($aggregate);
@@ -56,15 +54,8 @@ final class AggregateRepository
         $this->eventDispatcher->dispatch($aggregate->releaseEvents());
     }
 
-    /**
-     * @param string $aggregateClass
-     * @param AggregateId $aggregateId
-     * @return Aggregate
-     */
-    public function getById($aggregateClass, AggregateId $aggregateId)
+    public function getById(string $aggregateClass, AggregateId $aggregateId): Aggregate
     {
-        Assert::string($aggregateClass);
-
         if (!is_a($aggregateClass, Aggregate::class, true)) {
             throw new InvalidArgumentException(sprintf(
                 'Class "%s" has to implement "%s"',
@@ -91,12 +82,7 @@ final class AggregateRepository
         return $aggregate;
     }
 
-    /**
-     * @param string $aggregateClass
-     * @param AggregateId $aggregateId
-     * @return array
-     */
-    private function getAggregateState($aggregateClass, AggregateId $aggregateId)
+    private function getAggregateState(string $aggregateClass, AggregateId $aggregateId): array
     {
         $aggregateStates = $this->fetchAll(
             $aggregateClass::tableName(),
@@ -119,11 +105,9 @@ final class AggregateRepository
     }
 
     /**
-     * @param string $aggregateClass
-     * @param AggregateId $aggregateId
      * @return array[]
      */
-    private function getChildEntitiesByType($aggregateClass, AggregateId $aggregateId)
+    private function getChildEntitiesByType(string $aggregateClass, AggregateId $aggregateId): array
     {
         $childEntitiesByType = [];
 
@@ -148,7 +132,7 @@ final class AggregateRepository
         return $childEntitiesByType;
     }
 
-    public function delete(Aggregate $aggregate)
+    public function delete(Aggregate $aggregate): void
     {
         $this->connection->transactional(function () use ($aggregate) {
             $this->connection->delete(
@@ -168,7 +152,7 @@ final class AggregateRepository
         });
     }
 
-    private function insertOrUpdate(Entity $entity)
+    private function insertOrUpdate(Entity $entity): void
     {
         if ($entity->isNew()) {
             $this->connection->insert(
@@ -198,11 +182,9 @@ final class AggregateRepository
     }
 
     /**
-     * @param string $tableName
-     * @param array $identifier
      * @return array[]
      */
-    private function fetchAll($tableName, array $identifier): array
+    private function fetchAll(string $tableName, array $identifier): array
     {
         Assert::string($tableName);
 
@@ -212,12 +194,9 @@ final class AggregateRepository
     /**
      * This method might have been on Connection itself...
      *
-     * @param string $selectExpression
-     * @param string $tableExpression
-     * @param array $where
      * @return ResultStatement
      */
-    private function select($selectExpression, $tableExpression, array $where)
+    private function select(string $selectExpression, string $tableExpression, array $where): ResultStatement
     {
         Assert::string($selectExpression);
         Assert::string($tableExpression);

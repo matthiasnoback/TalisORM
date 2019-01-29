@@ -132,21 +132,21 @@ final class Order implements Aggregate, SpecifiesSchema
         return $this->orderId;
     }
 
-    public function childEntitiesByType()
+    public function childEntitiesByType(): array
     {
         return [
             Line::class => $this->lines
         ];
     }
 
-    public static function childEntityTypes()
+    public static function childEntityTypes(): array
     {
         return [
             Line::class
         ];
     }
 
-    public function state()
+    public function state(): array
     {
         $this->aggregateVersion++;
 
@@ -177,12 +177,12 @@ final class Order implements Aggregate, SpecifiesSchema
         return $order;
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'orders';
     }
 
-    public function identifier()
+    public function identifier(): array
     {
         return [
             'order_id' => $this->orderId->orderId(),
@@ -190,7 +190,7 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public static function identifierForQuery(AggregateId $aggregateId)
+    public static function identifierForQuery(AggregateId $aggregateId): array
     {
         Assert::isInstanceOf($aggregateId, OrderId::class);
         /** @var OrderId $aggregateId */
@@ -201,7 +201,7 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public function deletedChildEntities()
+    public function deletedChildEntities(): array
     {
         $deletedChildEntities = $this->deletedChildEntities;
 
@@ -215,7 +215,7 @@ final class Order implements Aggregate, SpecifiesSchema
         $this->deletedChildEntities[] = $childEntity;
     }
 
-    public static function specifySchema(Schema $schema)
+    public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('orders');
         $table->addColumn('order_id', 'string');
@@ -227,12 +227,12 @@ final class Order implements Aggregate, SpecifiesSchema
         Line::specifySchema($schema);
     }
 
-    public function isNew()
+    public function isNew(): bool
     {
         return $this->isNew;
     }
 
-    public function markAsPersisted()
+    public function markAsPersisted(): void
     {
         $this->isNew = false;
     }

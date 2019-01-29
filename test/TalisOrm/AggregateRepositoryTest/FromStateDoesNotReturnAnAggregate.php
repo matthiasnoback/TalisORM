@@ -24,17 +24,17 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
         $this->aggregateId = $aggregateId;
     }
 
-    public function childEntitiesByType()
+    public function childEntitiesByType(): array
     {
         return [];
     }
 
-    public static function childEntityTypes()
+    public static function childEntityTypes(): array
     {
         return [];
     }
 
-    public function state()
+    public function state(): array
     {
         return [
             'aggregate_id' => $this->aggregateId->id()
@@ -47,19 +47,19 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
         return new stdClass();
     }
 
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'from_state_does_not_return_an_aggregate';
     }
 
-    public function identifier()
+    public function identifier(): array
     {
         return [
             'aggregate_id' => $this->aggregateId->id()
         ];
     }
 
-    public static function identifierForQuery(AggregateId $aggregateId)
+    public static function identifierForQuery(AggregateId $aggregateId): array
     {
         Assert::isInstanceOf($aggregateId, FromStateDoesNotReturnAnAggregateId::class);
         /** @var FromStateDoesNotReturnAnAggregateId $aggregateId */
@@ -69,24 +69,24 @@ final class FromStateDoesNotReturnAnAggregate implements Aggregate, SpecifiesSch
         ];
     }
 
-    public function deletedChildEntities()
+    public function deletedChildEntities(): array
     {
         return [];
     }
 
-    public static function specifySchema(Schema $schema)
+    public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('from_state_does_not_return_an_aggregate');
         $table->addColumn('aggregate_id', 'integer');
         $table->addUniqueIndex(['aggregate_id']);
     }
 
-    public function isNew()
+    public function isNew(): bool
     {
         return true;
     }
 
-    public function markAsPersisted()
+    public function markAsPersisted(): void
     {
         // do nothing
     }

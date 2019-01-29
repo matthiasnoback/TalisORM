@@ -15,19 +15,15 @@ interface Entity
      *
      * If your aggregate uses optimistic concurrency, make sure you increment the `aggregate_version` column every
      * time this method gets called.
-     *
-     * @return array
      */
-    public function state();
+    public function state(): array;
 
     /**
      * Return the name of the table for this entity. Sample implementation:
      *
      *     return 'users';
-     *
-     * @return string
      */
-    public static function tableName();
+    public static function tableName(): string;
 
     /**
      * Return an array of columns and values which uniquely identify this entity. Sample implementation:
@@ -36,10 +32,8 @@ interface Entity
      *         'order_id' => 21,
      *         'company_id' => 5
      *     ];
-     *
-     * @return array
      */
-    public function identifier();
+    public function identifier(): array;
 
     /**
      * Return an array of columns and values that should be used to find the aggregate with the given ID. Sample
@@ -50,23 +44,17 @@ interface Entity
      *         'company_id' => $orderId->companyId()
      *     ];
      *
-     * @param AggregateId $aggregateId
-     * @return array
      */
-    public static function identifierForQuery(AggregateId $aggregateId);
+    public static function identifierForQuery(AggregateId $aggregateId): array;
 
     /**
      * Return a boolean indicating whether or not this entity is new, i.e. requires an INSERT statement to be used
      * when saving it.
-     *
-     * @return bool
      */
-    public function isNew();
+    public function isNew(): bool;
 
     /**
      * Will be called to mark an entity as "persisted". From this moment on, `isNew()` should return `false`.
-     *
-     * @return void
      */
-    public function markAsPersisted();
+    public function markAsPersisted(): void;
 }

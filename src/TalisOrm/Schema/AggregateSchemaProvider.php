@@ -4,6 +4,7 @@ namespace TalisOrm\Schema;
 
 use Doctrine\DBAL\Schema\Schema;
 use InvalidArgumentException;
+use Webmozart\Assert\Assert;
 
 final class AggregateSchemaProvider
 {
@@ -14,13 +15,11 @@ final class AggregateSchemaProvider
 
     public function __construct(array $aggregateClasses)
     {
+        Assert::allString($aggregateClasses);
         $this->aggregateClasses = $aggregateClasses;
     }
 
-    /**
-     * @return Schema
-     */
-    public function createSchema()
+    public function createSchema(): Schema
     {
         $schema = new Schema();
 

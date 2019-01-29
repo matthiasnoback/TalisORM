@@ -18,7 +18,7 @@ final class FromStateDoesNotReturnAnAggregateId implements AggregateId
         $this->id = $id;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->id;
     }

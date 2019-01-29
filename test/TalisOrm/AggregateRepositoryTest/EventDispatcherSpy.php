@@ -8,7 +8,7 @@ final class EventDispatcherSpy implements EventDispatcher
 {
     private $dispatchedEvents = [];
 
-    public function dispatch(array $events)
+    public function dispatch(array $events): void
     {
         foreach ($events as $event) {
             $this->dispatchedEvents[] = $event;
@@ -18,7 +18,7 @@ final class EventDispatcherSpy implements EventDispatcher
     /**
      * @return object[]
      */
-    public function dispatchedEvents()
+    public function dispatchedEvents(): array
     {
         return $this->dispatchedEvents;
     }

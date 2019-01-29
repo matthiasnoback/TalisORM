@@ -4,5 +4,5 @@ namespace TalisOrm\DomainEvents;
 
 interface EventDispatcher
 {
-    public function dispatch(array $events);
+    public function dispatch(array $events): void;
 }

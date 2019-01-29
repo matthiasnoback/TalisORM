@@ -18,10 +18,8 @@ interface Aggregate extends Entity
      *     return [
      *         Line::class => $this->lines()
      *     ];
-     *
-     * @return array
      */
-    public function childEntitiesByType();
+    public function childEntitiesByType(): array;
 
     /**
      * Return all child entity types for this aggregate. Sample implementation:
@@ -29,10 +27,8 @@ interface Aggregate extends Entity
      *     return [
      *         Line::class
      *     ]
-     *
-     * @return array
      */
-    public static function childEntityTypes();
+    public static function childEntityTypes(): array;
 
     /**
      * Recreate the root entity, based on the state that was retrieved from the database. This can be expected to be
@@ -62,7 +58,7 @@ interface Aggregate extends Entity
      *
      * @return ChildEntity[]
      */
-    public function deletedChildEntities();
+    public function deletedChildEntities(): array;
 
     /**
      * Return domain events that have been recorded internally, and immediately forget about them. That is: a second
@@ -71,5 +67,5 @@ interface Aggregate extends Entity
      * @see EventRecordingCapabilities
      * @return object[]
      */
-    public function releaseEvents();
+    public function releaseEvents(): array;
 }
