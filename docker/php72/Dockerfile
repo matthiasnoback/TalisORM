@@ -19,4 +19,10 @@ RUN mkdir -p /tmp/blackfire \
     && mv /tmp/blackfire/blackfire /usr/bin/blackfire \
     && rm -Rf /tmp/blackfire
 
+# Instal Composer
+RUN apk --no-cache add zlib-dev \
+    && docker-php-ext-install zip \
+    && php -m | grep zip
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
 WORKDIR /app

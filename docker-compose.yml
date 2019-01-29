@@ -7,23 +7,16 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
             MYSQL_DATABASE: 'default'
 
-    php56:
-        build: docker/php56/
-        image: talisorm/php56
-        volumes:
-            - ./:/app:cached
-            - ~/.composer:/tmp
-        environment:
-            COMPOSER_HOME: /tmp
-
     php72:
         build: docker/php72/
         image: talisorm/php72
         volumes:
             - ./:/app:cached
+            - ~/.composer:/tmp
         environment:
-            - BLACKFIRE_CLIENT_ID
-            - BLACKFIRE_CLIENT_TOKEN
+            COMPOSER_HOME: /tmp
+            BLACKFIRE_CLIENT_ID: ${BLACKFIRE_CLIENT_ID}
+            BLACKFIRE_CLIENT_TOKEN: ${BLACKFIRE_CLIENT_TOKEN}
 
     phpstan:
         build: docker/phpstan/
