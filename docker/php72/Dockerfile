@@ -29,4 +29,11 @@ RUN php -m | grep sqlite
 RUN docker-php-ext-install pdo pdo_mysql \
     && php -m | grep mysql
 
+# Install Xdebug (for code coverage)
+RUN apk add --no-cache --virtual .build-dependencies $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk --no-cache del .build-dependencies \
+    && php -m | grep xdebug
+
 WORKDIR /app
