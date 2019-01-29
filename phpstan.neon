@@ -2,7 +2,6 @@ parameters:
   level: max
   paths:
     - src/
-    - test/
 
 includes:
   # the extension is installed as a global Composer package, inside our custom phpstan image, see docker/phpstan/Dockerfile

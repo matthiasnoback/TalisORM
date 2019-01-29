@@ -9,7 +9,7 @@ services:
 
     php72:
         build: docker/php72/
-        image: talisorm/php72
+        image: talisorm/php72:latest
         volumes:
             - ./:/app:cached
             - ~/.composer:/tmp

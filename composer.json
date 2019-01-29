@@ -10,7 +10,8 @@
     "require": {
         "php": ">=7.2",
         "doctrine/dbal": "^2.5",
-        "webmozart/assert": "^1.4"
+        "webmozart/assert": "^1.4",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "doctrine/migrations": "^1.5",

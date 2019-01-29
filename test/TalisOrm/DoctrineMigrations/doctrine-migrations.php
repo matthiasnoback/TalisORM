@@ -11,7 +11,7 @@ use TalisOrm\AggregateRepositoryTest\Order;
 use TalisOrm\DoctrineMigrations\DoctrineMigrationsSchemaProvider;
 use TalisOrm\Schema\AggregateSchemaProvider;
 
-$projectRootDir = dirname(dirname(dirname(__DIR__))) . '/';
+$projectRootDir = dirname(dirname(dirname(__DIR__)));
 require $projectRootDir . '/vendor/autoload.php';
 
 $migrationsDirectory = $projectRootDir . '/build/migrations';

@@ -1,5 +1,4 @@
 FROM php:7.2-cli-alpine
-RUN docker-php-ext-install pdo pdo_mysql
 
 # Needed for running Scrutinizer's ocular.phar
 RUN apk add --no-cache git
@@ -24,5 +23,10 @@ RUN apk --no-cache add zlib-dev \
     && docker-php-ext-install zip \
     && php -m | grep zip
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# Install PDO with MySQL and Sqlite support
+RUN php -m | grep sqlite
+RUN docker-php-ext-install pdo pdo_mysql \
+    && php -m | grep mysql
 
 WORKDIR /app

@@ -18,8 +18,4 @@ docker-compose run --user="${HOST_UID}:${HOST_GID}" php72 \
 
 docker-compose run phpstan analyze
 
-docker-compose run --user="${HOST_UID}:${HOST_GID}" php72 \
-    rm -r build/migrations/ || true && \
-    php test/TalisOrm/DoctrineMigrations/doctrine-migrations.php migrations:diff | grep "Generated new migration class" && \
-    php test/TalisOrm/DoctrineMigrations/doctrine-migrations.php migrations:migrate --no-interaction && \
-    php test/TalisOrm/DoctrineMigrations/doctrine-migrations.php migrations:diff | grep "No changes detected"
+docker-compose run --user="${HOST_UID}:${HOST_GID}" php72 ./migrate.sh

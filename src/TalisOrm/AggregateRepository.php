@@ -202,7 +202,7 @@ final class AggregateRepository
      * @param array $identifier
      * @return array[]
      */
-    private function fetchAll($tableName, array $identifier)
+    private function fetchAll($tableName, array $identifier): array
     {
         Assert::string($tableName);
 

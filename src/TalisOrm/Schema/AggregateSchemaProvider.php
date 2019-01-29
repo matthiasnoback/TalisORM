@@ -2,7 +2,6 @@
 
 namespace TalisOrm\Schema;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Schema;
 use InvalidArgumentException;
 
