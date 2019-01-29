@@ -80,7 +80,7 @@ final class Order implements Aggregate, SpecifiesSchema
      * @var int
      */
     private $aggregateVersion;
-    
+
     public function state(): array
     {
         // N.B. It's important to increment the version manually every time state() gets called!
@@ -91,7 +91,7 @@ final class Order implements Aggregate, SpecifiesSchema
             Aggregate::VERSION_COLUMN => $this->aggregateVersion
         ];
     }
-    
+
     public static function fromState(array $aggregateState, array $childEntityStatesByType): Aggregate
     {
         $order = new self();
@@ -102,16 +102,16 @@ final class Order implements Aggregate, SpecifiesSchema
 
         return $order;
     }
-    
+
     /**
      * Only if your aggregate implements SpecifiesSchema:
      */
     public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('orders');
-        
+
         // ...
-        
+
         $table->addColumn(Aggregate::VERSION_COLUMN, 'integer');
     }
 }
@@ -124,7 +124,7 @@ final class Order implements Aggregate, SpecifiesSchema
 {
     // ...
 
-    public function setAggregateVersion(int $version)
+    public function setAggregateVersion(int $version): void
     {
         $this->aggregateVersion = $version;
     }
@@ -136,7 +136,7 @@ final class Order implements Aggregate, SpecifiesSchema
 }
 
 /*
- * Inside the controller which (for instance) renders a form, allowing the 
+ * Inside the controller which (for instance) renders a form, allowing the
  * user to modify some aspect of the aggregate:
  */
 $order = $repository->getById($orderId);
@@ -152,10 +152,6 @@ $order->setAggregateVersion($session->get('aggregate_version');
 
 $order->makeSomeChange();
 
-// This will compare the provided version to the version in the database: 
+// This will compare the provided version to the version in the database:
 $repository->save($order);
 ```
-
-## Supported PHP versions
-
-Though I think everybody should be on the latest PHP version, I know that many of us aren't. I've actually written this library to be useful for a project I'm working on right now, which is still on PHP 5.6. So... For now, this library will support PHP 5.6 and up.
