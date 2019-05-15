@@ -5,6 +5,7 @@ namespace TalisOrm\AggregateRepositoryTest;
 use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\Aggregate;
+use TalisOrm\AggregateBehavior;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\DateTimeUtil;
@@ -14,7 +15,7 @@ use Webmozart\Assert\Assert;
 
 final class Order implements Aggregate, SpecifiesSchema
 {
-    use EventRecordingCapabilities;
+    use AggregateBehavior;
 
     /**
      * @var OrderId
@@ -32,19 +33,9 @@ final class Order implements Aggregate, SpecifiesSchema
     private $lines = [];
 
     /**
-     * @var array
-     */
-    private $deletedChildEntities = [];
-
-    /**
-     * @var bool
-     */
-    private $isNew = true;
-
-    /**
      * @var int
      */
-    private $aggregateVersion;
+    private $quantityPrecision;
 
     private function __construct()
     {
@@ -55,12 +46,13 @@ final class Order implements Aggregate, SpecifiesSchema
      * @param DateTimeImmutable $orderDate
      * @return Order
      */
-    public static function create(OrderId $orderId, DateTimeImmutable $orderDate)
+    public static function create(OrderId $orderId, DateTimeImmutable $orderDate, int $quantityPrecision)
     {
         $order = new self();
 
         $order->orderId = $orderId;
         $order->orderDate = $orderDate;
+        $order->quantityPrecision = $quantityPrecision;
 
         $order->recordThat(new OrderCreated());
 
@@ -86,7 +78,7 @@ final class Order implements Aggregate, SpecifiesSchema
      */
     public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity)
     {
-        $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity);
+        $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity, $this->quantityPrecision);
 
         $this->recordThat(new LineAdded());
     }
@@ -174,6 +166,8 @@ final class Order implements Aggregate, SpecifiesSchema
 
         $order->aggregateVersion = (int)$aggregateState[Aggregate::VERSION_COLUMN];
 
+        $order->quantityPrecision = $aggregateState['quantityPrecision'];
+
         return $order;
     }
 
@@ -201,20 +195,6 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public function deletedChildEntities(): array
-    {
-        $deletedChildEntities = $this->deletedChildEntities;
-
-        $this->deletedChildEntities = [];
-
-        return $deletedChildEntities;
-    }
-
-    private function deleteChildEntity(ChildEntity $childEntity)
-    {
-        $this->deletedChildEntities[] = $childEntity;
-    }
-
     public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('orders');
@@ -225,24 +205,6 @@ final class Order implements Aggregate, SpecifiesSchema
         $table->setPrimaryKey(['order_id', 'company_id']);
 
         Line::specifySchema($schema);
-    }
-
-    public function isNew(): bool
-    {
-        return $this->isNew;
-    }
-
-    public function markAsPersisted(): void
-    {
-        $this->isNew = false;
-    }
-
-    /**
-     * @return int
-     */
-    public function aggregateVersion()
-    {
-        return $this->aggregateVersion;
     }
 
     /**
@@ -261,5 +223,10 @@ final class Order implements Aggregate, SpecifiesSchema
     public function lines(): array
     {
         return $this->lines;
+    }
+
+    public function quantityPrecision(): int
+    {
+        return $this->quantityPrecision;
     }
 }
