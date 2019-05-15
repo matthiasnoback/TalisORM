@@ -4,6 +4,9 @@ namespace TalisOrm;
 
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
 
+/**
+ * @see AggregateBehavior
+ */
 interface Aggregate extends Entity
 {
     /**

@@ -5,6 +5,7 @@ namespace TalisOrm\AggregateRepositoryTest;
 use DateTimeImmutable;
 use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\Aggregate;
+use TalisOrm\AggregateBehavior;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
 use TalisOrm\DateTimeUtil;
@@ -14,7 +15,7 @@ use Webmozart\Assert\Assert;
 
 final class Order implements Aggregate, SpecifiesSchema
 {
-    use EventRecordingCapabilities;
+    use AggregateBehavior;
 
     /**
      * @var OrderId
@@ -30,21 +31,6 @@ final class Order implements Aggregate, SpecifiesSchema
      * @var Line[]
      */
     private $lines = [];
-
-    /**
-     * @var array
-     */
-    private $deletedChildEntities = [];
-
-    /**
-     * @var bool
-     */
-    private $isNew = true;
-
-    /**
-     * @var int
-     */
-    private $aggregateVersion;
 
     private function __construct()
     {
@@ -201,20 +187,6 @@ final class Order implements Aggregate, SpecifiesSchema
         ];
     }
 
-    public function deletedChildEntities(): array
-    {
-        $deletedChildEntities = $this->deletedChildEntities;
-
-        $this->deletedChildEntities = [];
-
-        return $deletedChildEntities;
-    }
-
-    private function deleteChildEntity(ChildEntity $childEntity)
-    {
-        $this->deletedChildEntities[] = $childEntity;
-    }
-
     public static function specifySchema(Schema $schema): void
     {
         $table = $schema->createTable('orders');
@@ -225,24 +197,6 @@ final class Order implements Aggregate, SpecifiesSchema
         $table->setPrimaryKey(['order_id', 'company_id']);
 
         Line::specifySchema($schema);
-    }
-
-    public function isNew(): bool
-    {
-        return $this->isNew;
-    }
-
-    public function markAsPersisted(): void
-    {
-        $this->isNew = false;
-    }
-
-    /**
-     * @return int
-     */
-    public function aggregateVersion()
-    {
-        return $this->aggregateVersion;
     }
 
     /**

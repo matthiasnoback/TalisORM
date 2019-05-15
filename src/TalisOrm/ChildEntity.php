@@ -2,6 +2,9 @@
 
 namespace TalisOrm;
 
+/**
+ * @see ChildEntityBehavior
+ */
 interface ChildEntity extends Entity
 {
     /**

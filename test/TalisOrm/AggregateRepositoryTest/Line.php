@@ -5,10 +5,13 @@ namespace TalisOrm\AggregateRepositoryTest;
 use Doctrine\DBAL\Schema\Schema;
 use TalisOrm\AggregateId;
 use TalisOrm\ChildEntity;
+use TalisOrm\ChildEntityBehavior;
 use TalisOrm\Schema\SpecifiesSchema;
 
 final class Line implements ChildEntity, SpecifiesSchema
 {
+    use ChildEntityBehavior;
+
     /**
      * @var OrderId
      */
@@ -28,11 +31,6 @@ final class Line implements ChildEntity, SpecifiesSchema
      * @var Quantity
      */
     private $quantity;
-
-    /**
-     * @var bool
-     */
-    private $isNew = true;
 
     private function __construct()
     {
@@ -138,15 +136,5 @@ final class Line implements ChildEntity, SpecifiesSchema
         $table->addColumn('product_id', 'string');
         $table->addColumn('quantity', 'integer');
         $table->setPrimaryKey(['order_id', 'company_id', 'line_number']);
-    }
-
-    public function isNew(): bool
-    {
-        return $this->isNew;
-    }
-
-    public function markAsPersisted(): void
-    {
-        $this->isNew = false;
     }
 }
