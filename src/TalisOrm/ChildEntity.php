@@ -19,7 +19,8 @@ interface ChildEntity extends Entity
      *     return $line;
      *
      * @param array $state
+     * @param array $aggregateState
      * @return static
      */
-    public static function fromState(array $state);
+    public static function fromState(array $state, array $aggregateState);
 }

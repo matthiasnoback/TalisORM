@@ -89,7 +89,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         ];
     }
 
-    public static function fromState(array $state): Line
+    public static function fromState(array $state, array $aggregateState): Line
     {
         $line = new self();
 
