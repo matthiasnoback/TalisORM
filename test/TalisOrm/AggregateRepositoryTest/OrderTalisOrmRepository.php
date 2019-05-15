@@ -29,7 +29,9 @@ final class OrderTalisOrmRepository implements OrderRepository
 
     public function getById(OrderId $orderId)
     {
-        return $this->aggregateRepository->getById(Order::class, $orderId);
+        return $this->aggregateRepository->getById(Order::class, $orderId, [
+            'quantityPrecision' => 2
+        ]);
     }
 
     public function delete(Order $order)

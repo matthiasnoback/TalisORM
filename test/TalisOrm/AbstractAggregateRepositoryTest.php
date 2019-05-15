@@ -71,7 +71,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate);
 
@@ -84,11 +85,43 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     /**
      * @test
      */
+    public function when_loading_an_aggregate_it_can_inject_some_extra_state(): void
+    {
+        $aggregate = Order::create(
+            new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
+            DateTimeUtil::createDateTimeImmutable('2019-05-15'),
+            $this->quantityPrecision()
+        );
+        $aggregate->addLine(
+            new LineNumber(1),
+            new ProductId('73d46c97-a71b-4e3c-9633-bb7a8603b301', 5),
+            new Quantity(10)
+        );
+        $this->repository->save($aggregate);
+
+        $fromDatabase = $this->repository->getById($aggregate->orderId());
+
+        /*
+         * The quantity precision doesn't come from the database, but from the array of extra state, provided by the
+         * `OrderTalisOrmRepository`.
+         */
+        self::assertSame(2, $fromDatabase->quantityPrecision());
+
+        /*
+         * It's also available to the `fromState()` method of the `Line` child entity.
+         */
+        self::assertSame(2, $fromDatabase->lines()[0]->quantityPrecision());
+    }
+
+    /**
+     * @test
+     */
     public function it_updates_an_aggregate()
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate);
 
@@ -114,13 +147,15 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate);
 
         $aggregateWithSameId = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-04')
+            DateTimeUtil::createDateTimeImmutable('2018-10-04'),
+            $this->quantityPrecision()
         );
 
         $this->expectException(UniqueConstraintViolationException::class);
@@ -135,7 +170,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate);
 
@@ -166,7 +202,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate);
 
@@ -194,7 +231,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -222,7 +260,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -255,7 +294,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -289,7 +329,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -331,7 +372,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -369,7 +411,8 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $aggregate->addLine(
             new LineNumber(1),
@@ -391,12 +434,14 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
     {
         $aggregate1 = Order::create(
             new OrderId('91338a57-5c9a-40e8-b5e8-803e8175c7d7', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-03')
+            DateTimeUtil::createDateTimeImmutable('2018-10-03'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate1);
         $aggregate2 = Order::create(
             new OrderId('c8ee1ee6-7757-4661-81fb-5b327badbff8', 5),
-            DateTimeUtil::createDateTimeImmutable('2018-10-04')
+            DateTimeUtil::createDateTimeImmutable('2018-10-04'),
+            $this->quantityPrecision()
         );
         $this->repository->save($aggregate2);
 
@@ -408,5 +453,10 @@ abstract class AbstractAggregateRepositoryTest extends TestCase
         // aggregate1 can't be found
         $this->expectException(AggregateNotFoundException::class);
         $this->repository->getById($aggregate1->orderId());
+    }
+
+    private function quantityPrecision(): int
+    {
+        return 2;
     }
 }

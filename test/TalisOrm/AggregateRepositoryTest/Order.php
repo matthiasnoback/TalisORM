@@ -32,6 +32,11 @@ final class Order implements Aggregate, SpecifiesSchema
      */
     private $lines = [];
 
+    /**
+     * @var int
+     */
+    private $quantityPrecision;
+
     private function __construct()
     {
     }
@@ -41,12 +46,13 @@ final class Order implements Aggregate, SpecifiesSchema
      * @param DateTimeImmutable $orderDate
      * @return Order
      */
-    public static function create(OrderId $orderId, DateTimeImmutable $orderDate)
+    public static function create(OrderId $orderId, DateTimeImmutable $orderDate, int $quantityPrecision)
     {
         $order = new self();
 
         $order->orderId = $orderId;
         $order->orderDate = $orderDate;
+        $order->quantityPrecision = $quantityPrecision;
 
         $order->recordThat(new OrderCreated());
 
@@ -72,7 +78,7 @@ final class Order implements Aggregate, SpecifiesSchema
      */
     public function addLine(LineNumber $lineId, ProductId $productId, Quantity $quantity)
     {
-        $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity);
+        $this->lines[] = Line::create($this->orderId, $lineId, $productId, $quantity, $this->quantityPrecision);
 
         $this->recordThat(new LineAdded());
     }
@@ -160,6 +166,8 @@ final class Order implements Aggregate, SpecifiesSchema
 
         $order->aggregateVersion = (int)$aggregateState[Aggregate::VERSION_COLUMN];
 
+        $order->quantityPrecision = $aggregateState['quantityPrecision'];
+
         return $order;
     }
 
@@ -215,5 +223,10 @@ final class Order implements Aggregate, SpecifiesSchema
     public function lines(): array
     {
         return $this->lines;
+    }
+
+    public function quantityPrecision(): int
+    {
+        return $this->quantityPrecision;
     }
 }

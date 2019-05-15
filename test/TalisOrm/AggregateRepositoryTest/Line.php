@@ -32,6 +32,11 @@ final class Line implements ChildEntity, SpecifiesSchema
      */
     private $quantity;
 
+    /**
+     * @var int
+     */
+    private $quantityPrecision;
+
     private function __construct()
     {
     }
@@ -40,7 +45,8 @@ final class Line implements ChildEntity, SpecifiesSchema
         OrderId $orderId,
         LineNumber $lineNumber,
         ProductId $productId,
-        Quantity $quantity
+        Quantity $quantity,
+        int $quantityPrecision
     ): Line {
         $line = new self();
 
@@ -48,6 +54,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         $line->lineNumber = $lineNumber;
         $line->productId = $productId;
         $line->quantity = $quantity;
+        $line->quantityPrecision = $quantityPrecision;
 
         return $line;
     }
@@ -78,6 +85,11 @@ final class Line implements ChildEntity, SpecifiesSchema
         return $this->quantity;
     }
 
+    public function quantityPrecision(): int
+    {
+        return $this->quantityPrecision;
+    }
+
     public function state(): array
     {
         return [
@@ -97,6 +109,7 @@ final class Line implements ChildEntity, SpecifiesSchema
         $line->lineNumber = new LineNumber((int)$state['line_number']);
         $line->productId = new ProductId($state['product_id'], (int)$state['company_id']);
         $line->quantity = new Quantity((int)$state['quantity']);
+        $line->quantityPrecision = $aggregateState['quantityPrecision'];
 
         return $line;
     }

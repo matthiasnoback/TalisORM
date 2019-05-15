@@ -63,7 +63,7 @@ final class AggregateRepository
         $this->eventDispatcher->dispatch($aggregate->releaseEvents());
     }
 
-    public function getById(string $aggregateClass, AggregateId $aggregateId): Aggregate
+    public function getById(string $aggregateClass, AggregateId $aggregateId, array $extraState = []): Aggregate
     {
         if (!is_a($aggregateClass, Aggregate::class, true)) {
             throw new InvalidArgumentException(sprintf(
@@ -74,6 +74,7 @@ final class AggregateRepository
         }
 
         $aggregateState = $this->getAggregateState($aggregateClass, $aggregateId);
+        $aggregateState = array_merge($aggregateState, $extraState);
 
         $childEntitiesByType = $this->getChildEntitiesByType($aggregateClass, $aggregateId, $aggregateState);
 
