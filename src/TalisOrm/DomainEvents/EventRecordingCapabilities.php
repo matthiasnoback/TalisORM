@@ -9,6 +9,9 @@ namespace TalisOrm\DomainEvents;
  */
 trait EventRecordingCapabilities
 {
+    /**
+     * @var object[]
+     */
     private $events = [];
 
     /**

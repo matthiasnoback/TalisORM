@@ -9,10 +9,13 @@ use Webmozart\Assert\Assert;
 final class AggregateSchemaProvider
 {
     /**
-     * @var string[]
+     * @var array<class-string<SpecifiesSchema>>
      */
     private $aggregateClasses;
 
+    /**
+     * @param array<class-string<SpecifiesSchema>> $aggregateClasses
+     */
     public function __construct(array $aggregateClasses)
     {
         Assert::allString($aggregateClasses);

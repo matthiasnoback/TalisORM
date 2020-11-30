@@ -11,7 +11,7 @@ use TalisOrm\AggregateRepository;
 final class OrderTalisOrmRepository implements OrderRepository
 {
     /**
-     * @var AggregateRepository
+     * @var AggregateRepository<Order>
      */
     private $aggregateRepository;
 
