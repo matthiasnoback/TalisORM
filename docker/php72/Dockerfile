@@ -31,7 +31,7 @@ RUN docker-php-ext-install pdo pdo_mysql \
 
 # Install Xdebug (for code coverage)
 RUN apk add --no-cache --virtual .build-dependencies $PHPIZE_DEPS \
-    && pecl install xdebug \
+    && pecl install xdebug-2.9.8 \
     && docker-php-ext-enable xdebug \
     && apk --no-cache del .build-dependencies \
     && php -m | grep xdebug
