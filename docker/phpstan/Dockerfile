@@ -1,2 +1,2 @@
-FROM phpstan/phpstan:0.12
+FROM phpstan/phpstan:latest
 RUN composer global require phpstan/phpstan-webmozart-assert
