@@ -6,7 +6,7 @@ use TalisOrm\DomainEvents\EventRecordingCapabilities;
 
 /**
  * @see AggregateBehavior
- * @template T
+ * @phpstan-template T
  */
 interface Aggregate extends Entity
 {
@@ -23,7 +23,9 @@ interface Aggregate extends Entity
      *         Line::class => $this->lines()
      *     ];
      *
-     * @return array<class-string<ChildEntity>, mixed[]>
+     * @return array<string, mixed[]>
+     *
+     * @phpstan-return array<class-string<ChildEntity>, mixed[]>
      */
     public function childEntitiesByType(): array;
 
@@ -34,7 +36,9 @@ interface Aggregate extends Entity
      *         Line::class
      *     ]
      *
-     * @return array<int, class-string<ChildEntity>>
+     * @return array<int, string>
+     *
+     * @phpstan-return array<int, class-string<ChildEntity>>
      */
     public static function childEntityTypes(): array;
 
@@ -56,9 +60,10 @@ interface Aggregate extends Entity
      * }
      *
      * @param array<string, mixed> $aggregateState
-     * @param array<class-string<ChildEntity>, mixed[]> $childEntitiesByType
+     * @param array<string, mixed[]> $childEntitiesByType
      * @return static
      *
+     * @phpstan-param array<class-string<ChildEntity>, mixed[]> $childEntitiesByType
      * @phpstan-return T
      */
     public static function fromState(array $aggregateState, array $childEntitiesByType);

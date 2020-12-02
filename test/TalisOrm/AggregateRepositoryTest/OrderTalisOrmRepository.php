@@ -11,10 +11,13 @@ use TalisOrm\AggregateRepository;
 final class OrderTalisOrmRepository implements OrderRepository
 {
     /**
-     * @var AggregateRepository<Order>
+     * @phpstan-var AggregateRepository<Order>
      */
     private $aggregateRepository;
 
+    /**
+     * @phpstan-param AggregateRepository<Order> $aggregateRepository
+     */
     public function __construct(AggregateRepository $aggregateRepository)
     {
         $this->aggregateRepository = $aggregateRepository;

@@ -9,12 +9,16 @@ use Webmozart\Assert\Assert;
 final class AggregateSchemaProvider
 {
     /**
-     * @var array<class-string<SpecifiesSchema>>
+     * @var string[]
+     *
+     * @phpstan-var array<class-string<SpecifiesSchema>>
      */
     private $aggregateClasses;
 
     /**
-     * @param array<class-string<SpecifiesSchema>> $aggregateClasses
+     * @param string[] $aggregateClasses
+     *
+     * @phpstan-param array<class-string<SpecifiesSchema>> $aggregateClasses
      */
     public function __construct(array $aggregateClasses)
     {

@@ -14,7 +14,7 @@ use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
 
 /**
- * @implements Aggregate<Order>
+ * @phpstan-implements Aggregate<Order>
  */
 final class Order implements Aggregate, SpecifiesSchema
 {

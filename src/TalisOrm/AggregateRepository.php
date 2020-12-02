@@ -12,7 +12,7 @@ use TalisOrm\DomainEvents\EventDispatcher;
 use Webmozart\Assert\Assert;
 
 /**
- * @template T of Aggregate
+ * @phpstan-template T of Aggregate
  */
 final class AggregateRepository
 {
@@ -68,9 +68,11 @@ final class AggregateRepository
     }
 
     /**
-     * @param class-string<T> $aggregateClass
      * @param array<string, mixed> $extraState
-     * @return T
+     * @return mixed|Aggregate
+     *
+     * @phpstan-param class-string<T> $aggregateClass
+     * @phpstan-return T
      */
     public function getById(string $aggregateClass, AggregateId $aggregateId, array $extraState = []): Aggregate
     {
@@ -102,8 +104,9 @@ final class AggregateRepository
     }
 
     /**
-     * @param class-string<T> $aggregateClass
      * @return array<string, mixed>
+     *
+     * @phpstan-param class-string<T> $aggregateClass
      */
     private function getAggregateState(string $aggregateClass, AggregateId $aggregateId): array
     {
@@ -128,9 +131,11 @@ final class AggregateRepository
     }
 
     /**
-     * @param class-string<T> $aggregateClass
      * @param array<string, mixed> $aggregateState
-     * @return array<class-string<ChildEntity>, mixed[]>
+     * @return array<string, mixed[]>
+     *
+     * @phpstan-param class-string<T> $aggregateClass
+     * @phpstan-return array<class-string<ChildEntity>, mixed[]>
      */
     private function getChildEntitiesByType(
         string $aggregateClass,
