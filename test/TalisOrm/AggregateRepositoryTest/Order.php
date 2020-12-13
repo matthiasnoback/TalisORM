@@ -13,6 +13,9 @@ use TalisOrm\DomainEvents\EventRecordingCapabilities;
 use TalisOrm\Schema\SpecifiesSchema;
 use Webmozart\Assert\Assert;
 
+/**
+ * @phpstan-implements Aggregate<Order>
+ */
 final class Order implements Aggregate, SpecifiesSchema
 {
     use AggregateBehavior;

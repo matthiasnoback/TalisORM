@@ -11,6 +11,9 @@ use PDO;
 use TalisOrm\DomainEvents\EventDispatcher;
 use Webmozart\Assert\Assert;
 
+/**
+ * @phpstan-template T of Aggregate
+ */
 final class AggregateRepository
 {
     /**
@@ -31,11 +34,12 @@ final class AggregateRepository
 
     /**
      * @throws ConcurrentUpdateOccurred (only when you use optimistic concurrency locking)
+     *
+     * @phpstan-param T $aggregate
      */
     public function save(Aggregate $aggregate): void
     {
         $this->connection->transactional(function () use ($aggregate) {
-            /** @var Entity[] $persistedEntities */
             $persistedEntities = [];
 
             $this->insertOrUpdate($aggregate);
@@ -63,6 +67,13 @@ final class AggregateRepository
         $this->eventDispatcher->dispatch($aggregate->releaseEvents());
     }
 
+    /**
+     * @param array<string, mixed> $extraState
+     * @return mixed|Aggregate
+     *
+     * @phpstan-param class-string<T> $aggregateClass
+     * @phpstan-return T
+     */
     public function getById(string $aggregateClass, AggregateId $aggregateId, array $extraState = []): Aggregate
     {
         if (!is_a($aggregateClass, Aggregate::class, true)) {
@@ -92,6 +103,11 @@ final class AggregateRepository
         return $aggregate;
     }
 
+    /**
+     * @return array<string, mixed>
+     *
+     * @phpstan-param class-string<T> $aggregateClass
+     */
     private function getAggregateState(string $aggregateClass, AggregateId $aggregateId): array
     {
         $aggregateStates = $this->fetchAll(
@@ -115,7 +131,11 @@ final class AggregateRepository
     }
 
     /**
-     * @return array[]
+     * @param array<string, mixed> $aggregateState
+     * @return array<string, mixed[]>
+     *
+     * @phpstan-param class-string<T> $aggregateClass
+     * @phpstan-return array<class-string<ChildEntity>, mixed[]>
      */
     private function getChildEntitiesByType(
         string $aggregateClass,
@@ -145,6 +165,9 @@ final class AggregateRepository
         return $childEntitiesByType;
     }
 
+    /**
+     * @phpstan-param T $aggregate
+     */
     public function delete(Aggregate $aggregate): void
     {
         $this->connection->transactional(function () use ($aggregate) {
@@ -155,7 +178,6 @@ final class AggregateRepository
 
             foreach ($aggregate->childEntitiesByType() as $type => $childEntities) {
                 foreach ($childEntities as $childEntity) {
-                    /** @var ChildEntity $childEntity */
                     $this->connection->delete(
                         $this->connection->quoteIdentifier($childEntity::tableName()),
                         $childEntity->identifier()
@@ -194,7 +216,8 @@ final class AggregateRepository
     }
 
     /**
-     * @return array[]
+     * @param array<string, mixed> $identifier
+     * @return array<int, array<string, mixed>>
      */
     private function fetchAll(string $tableName, array $identifier): array
     {
@@ -206,7 +229,8 @@ final class AggregateRepository
     /**
      * This method might have been on Connection itself...
      *
-     * @return ResultStatement
+     * @param array<string, mixed> $where
+     * @return ResultStatement<mixed>
      */
     private function select(string $selectExpression, string $tableExpression, array $where): ResultStatement
     {

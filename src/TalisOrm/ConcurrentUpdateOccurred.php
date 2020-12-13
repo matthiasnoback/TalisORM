@@ -15,6 +15,9 @@ final class ConcurrentUpdateOccurred extends RuntimeException
         ));
     }
 
+    /**
+     * @param array<string, mixed> $identifier
+     */
     private static function renderIdentifier(array $identifier): string
     {
         $parts = [];

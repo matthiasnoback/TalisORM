@@ -15,6 +15,8 @@ interface Entity
      *
      * If your aggregate uses optimistic concurrency, make sure you increment the `aggregate_version` column every
      * time this method gets called.
+     *
+     * @return array<string, mixed>
      */
     public function state(): array;
 
@@ -32,6 +34,8 @@ interface Entity
      *         'order_id' => 21,
      *         'company_id' => 5
      *     ];
+     *
+     * @return array<string, mixed>
      */
     public function identifier(): array;
 
@@ -44,6 +48,7 @@ interface Entity
      *         'company_id' => $orderId->companyId()
      *     ];
      *
+     * @return array<string, mixed>
      */
     public static function identifierForQuery(AggregateId $aggregateId): array;
 

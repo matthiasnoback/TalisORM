@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace TalisOrm;
 
 use TalisOrm\DomainEvents\EventRecordingCapabilities;
-use Webmozart\Assert\Assert;
 
 trait AggregateBehavior
 {
     use EventRecordingCapabilities;
 
     /**
-     * @var array
+     * @var ChildEntity[]
      */
     private $deletedChildEntities = [];
 
@@ -34,7 +33,7 @@ trait AggregateBehavior
         return $deletedChildEntities;
     }
 
-    private function deleteChildEntity(ChildEntity $childEntity)
+    private function deleteChildEntity(ChildEntity $childEntity): void
     {
         $this->deletedChildEntities[] = $childEntity;
     }
@@ -49,10 +48,7 @@ trait AggregateBehavior
         $this->isNew = false;
     }
 
-    /**
-     * @return int
-     */
-    public function aggregateVersion()
+    public function aggregateVersion(): int
     {
         return $this->aggregateVersion;
     }

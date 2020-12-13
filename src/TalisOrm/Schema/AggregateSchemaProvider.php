@@ -10,9 +10,16 @@ final class AggregateSchemaProvider
 {
     /**
      * @var string[]
+     *
+     * @phpstan-var array<class-string<SpecifiesSchema>>
      */
     private $aggregateClasses;
 
+    /**
+     * @param string[] $aggregateClasses
+     *
+     * @phpstan-param array<class-string<SpecifiesSchema>> $aggregateClasses
+     */
     public function __construct(array $aggregateClasses)
     {
         Assert::allString($aggregateClasses);
