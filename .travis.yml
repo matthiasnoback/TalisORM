@@ -4,7 +4,7 @@ services:
   - docker
 
 install:
-  - travis_retry docker-compose build
+  - travis_retry docker-compose pull
 
 script:
   - ./run_tests.sh
