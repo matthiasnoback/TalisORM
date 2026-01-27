@@ -16,7 +16,7 @@
     },
     "require-dev": {
         "doctrine/migrations": "^1.5",
-        "phpunit/phpunit": "^7.5"
+        "phpunit/phpunit": "^8.5"
     },
     "suggest": {
         "doctrine/migrations": "If your aggregates implement SpecifiesSchema, you can create migrations for them"
